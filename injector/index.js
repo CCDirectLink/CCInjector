@@ -1,3 +1,3 @@
 import Injector from './js/injector.js';
 
-const injector = new Injector();
+const injector = new Injector(document);
