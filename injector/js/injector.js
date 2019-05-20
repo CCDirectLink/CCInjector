@@ -29,7 +29,10 @@ export default class Injector {
 	}
 	
 	async inject() {
-		let customHtmlPath = 'injector/node-webkit.html';
+		let customHtmlPath = this.path.joinWithPath({
+			pathKey: 'base', 
+			relativePath: 'injector/node-webkit.html'
+		});
 		
 		let createCustomHtmlFile = this.debug || (await this.fs.exists(customHtmlPath));
 		
@@ -43,26 +46,38 @@ export default class Injector {
 	}
 	
 	async patchWithDependencies() {
-		let baseHtml = 'assets/node-webkit.html';
+		let baseHtml = this.path.joinWithPath({
+			pathKey: 'base', 
+			relativePath: 'assets/node-webkit.html'
+		});
 		
 		const doc = await this.resLoader.load(baseHtml , {html : true});
 		const dom = new DOM(doc);
 		this.htmlPatcher.addDOM(dom);
 		
-		const basePath = this.path.join('/assets/');
+		const basePath = this.path.joinWithPath({
+			pathKey : 'base', 
+			relativePath : '/assets/'
+		});
 		this.htmlPatcher.setBaseUrl(basePath);
 		
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
 
 		let hookOnloadScript = this.htmlPatcher.createScriptTag();
-		hookOnloadScript.src = this.path.join('onload-hijacker.js', 'injector-scripts');
+		hookOnloadScript.src = this.path.joinWithPath({
+			pathKey: 'injector-scripts',
+			relativePath: 'onload-hijacker.js'
+		});
 		this.htmlPatcher.insertBeforePivot();
 
 		// this will inject the mod manager
 		let modLoaderScript = this.htmlPatcher.createScriptTag();
 		modLoaderScript.type = 'module';
 		
-		modLoaderScript.src = this.path.join('/mod/manager.js', 'injector-scripts-browser');
+		modLoaderScript.src = this.path.joinWithPath({
+			pathKey: 'injector-scripts-browser',
+			relativePath: '/mod/manager.js'
+		});
 		modLoaderScript.id = 'mod-manager';
 
 		this.htmlPatcher.insertAfterPivot();

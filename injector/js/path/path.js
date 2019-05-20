@@ -44,21 +44,61 @@ export default class Path {
 			this.set(key + '-browser', fullPathBrowser);
 		}
 	}
+	remove(key) {
+		if (this.paths[key]) {
+			if (this.env.isNode()) {
+				delete this.paths[key];
+			} 
+			if (this.env.isBrowser()) {
+				delete this.paths[key + '-browser'];
+			}
+		}
+	}
 	
-	join(relativePath, key = 'base') {
-		
-		const path = this.getPath(key);
-		let fullPath;
+	joinWithPath({pathKey, relativePath}) {
+		if (!pathKey) {
+			pathKey = 'base';
+		}
+		if (!relativePath) {
+			relativePath = '/';
+		}
+		const path = this.getPath(pathKey);
 
-		if (this.env.isNode() && !key.endsWith('-browser')) {
-			fullPath = this.pathNode.join(path, relativePath);
+		if(!Array.isArray(relativePath) && relativePath) {
+			relativePath = [relativePath];
+		}
+		
+		relativePath.unshift(path);
+		
+		let joinedResult;
+
+		if (!pathKey.endsWith('-browser')) {
+			joinedResult = this.join(relativePath);
+		}  else {
+			joinedResult = this._join(this.pathBrowser, relativePath);
+		}
+		
+		return joinedResult;
+	}
+	join() {
+		let joinedResult;
+
+		if (this.env.isNode()) {
+			joinedResult = this._join(this.pathNode, arguments);
 		} else if (this.env.isBrowser()) {
-			fullPath = this.pathBrowser.join(path , relativePath);
+			joinedResult = this._join(this.pathBrowser, arguments);
 		} else {
 			throw new Error('How did this even happen?');
 		}
+		
+		return joinedResult;
+	}
 
-		return fullPath;
+	_join(pathImplementation, args) {
+		if(Array.isArray(args[0])) {
+			args = args[0];
+		}
+ 		return pathImplementation.join.apply(pathImplementation, args);
 	}
 
 	getPath(key) {
