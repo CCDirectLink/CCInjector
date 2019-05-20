@@ -53,7 +53,10 @@ export default class Injector {
 		this.htmlPatcher.setBaseUrl(basePath);
 		
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
-		
+
+		// loading order
+		this.htmlPatcher.markLastScriptAsModule();
+
 		// this will
 		let preInit = this.htmlPatcher.createScriptTag();
 		preInit.type = 'module';
@@ -62,5 +65,6 @@ export default class Injector {
 		preInit.id = 'mod-manager';
 
 		this.htmlPatcher.insertAfterPivot();
+
 	}
 }
