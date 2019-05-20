@@ -68,9 +68,9 @@ export default class FileSystem {
 					resolve(result);
 				};
 				if (!opts) {
-					fs.readdir(path, cb);
+					this.fs.readdir(path, cb);
 				} else {
-					fs.readdir(path, opts, cb);
+					this.fs.readdir(path, opts, cb);
 				}
 			});
 		}
