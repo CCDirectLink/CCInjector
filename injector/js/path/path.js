@@ -1,4 +1,4 @@
-import BrowserPath from './browser-path.js';
+import BrowserPath from './browser.js';
 
 export default class Path {
 

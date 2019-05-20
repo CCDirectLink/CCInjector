@@ -1,6 +1,6 @@
-import HtmlPatcher from './html-patcher/html-patcher.js';
-import ResourceLoader from './resource-manager/resource-loader.js';
-import ResourceCreator from './resource-manager/resource-creator.js';
+import HtmlPatcher from './html/patcher.js';
+import ResourceLoader from './resource/loader.js';
+import ResourceCreator from './resource/creator.js';
 import Path from './path/path.js';
 import DOM from './dom/dom.js';
 import Env from './environment/environment.js';
@@ -24,7 +24,7 @@ export default class Injector {
 	}
 	
 	async init() {
-		this.path.add('injector-scripts','injector/js/');
+		this.path.add('injector-scripts','injector/js');
 		await this.inject();
 	}
 	
@@ -55,8 +55,8 @@ export default class Injector {
 		let preInit = this.htmlPatcher.createScriptTag();
 		preInit.type = 'module';
 		
-		preInit.src = this.path.join('/mod-manager/mod-manager.js', 'injector-scripts-browser');
-		preInit.id = 'pre-init';
+		preInit.src = this.path.join('/mod/manager.js', 'injector-scripts-browser');
+		preInit.id = 'mod-manager';
 
 		this.htmlPatcher.insertAfterPivot();
 	}
