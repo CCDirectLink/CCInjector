@@ -16,6 +16,6 @@ export default class Environment {
 		       !!process.versions['nw'];
 	}
 	isBrowser() {
-		return !this.isNode(); 
+		return typeof window !== 'undefined' && typeof navigator !== 'undefined'; 
 	}
 }
