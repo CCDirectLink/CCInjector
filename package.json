@@ -1,5 +1,5 @@
 {
-	"name" : "crosscode-injected",
+	"name" : "CrossCode",
 	"version" : "0.1.0",
 	"main": "injector/index.html",
 	"chromium-args" : "--ignore-gpu-blacklist --disable-direct-composition --disable-background-networking --in-process-gpu --password-store=basic",
