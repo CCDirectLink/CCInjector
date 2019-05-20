@@ -15,7 +15,6 @@ export default class Injector {
 		this.htmlPatcher = new HtmlPatcher();
 
 		this.path = new Path(env);
-		
 		this.resLoader = new ResourceLoader(this.path, env);
 		this.resCreator = new ResourceCreator(this.path, env);
 
@@ -25,6 +24,7 @@ export default class Injector {
 	}
 	
 	async init() {
+		this.path.add('injector-scripts','injector/js/');
 		await this.inject();
 	}
 	
@@ -51,8 +51,11 @@ export default class Injector {
 		
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
 		
+		// this will
 		let preInit = this.htmlPatcher.createScriptTag();
-		preInit.src = '';
+		preInit.type = 'module';
+		
+		preInit.src = this.path.join('/mod-manager/mod-manager.js', 'injector-scripts-browser');
 		preInit.id = 'pre-init';
 
 		this.htmlPatcher.insertAfterPivot();
