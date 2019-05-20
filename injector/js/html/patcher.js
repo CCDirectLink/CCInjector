@@ -1,3 +1,4 @@
+
 export default class HtmlPatcher {
 
 	constructor() {
@@ -31,6 +32,14 @@ export default class HtmlPatcher {
 		this.dom.setPivotElement(script);
 	}
 
+	markLastScriptAsModule() {
+		let lastScript = this._getLastScript();
+		lastScript.type = 'module';
+	}
+	_getLastScript() {
+		let scripts = this.dom.findAllScripts();
+		return scripts[scripts.length - 1];
+	}
 	export() {
 		return this.dom.toString();
 	}
