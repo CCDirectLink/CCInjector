@@ -4,7 +4,7 @@ import ResourceCreator from './resource/creator.js';
 import Path from './path/path.js';
 import DOM from './dom/dom.js';
 import Env from './environment/environment.js';
-const fs = require('fs');
+import FileSystem from './filesystem-manager/fs.js';
 
 export default class Injector {
 
@@ -13,7 +13,7 @@ export default class Injector {
 		this.debug = env.isDev();
 
 		this.htmlPatcher = new HtmlPatcher();
-
+		this.fs = new FileSystem(env);
 		this.path = new Path(env);
 		this.resLoader = new ResourceLoader(this.path, env);
 		this.resCreator = new ResourceCreator(this.path, env);
@@ -30,12 +30,15 @@ export default class Injector {
 	
 	async inject() {
 		let customHtmlPath = 'injector/node-webkit.html';
-
-		if(this.debug || !fs.existsSync(customHtmlPath)) {
+		
+		let createCustomHtmlFile = this.debug || (await this.fs.exists(customHtmlPath));
+		
+		if(createCustomHtmlFile) {
 			await this.patchWithDependencies();
 			let patchedHtml = this.htmlPatcher.export();
 			await this.resCreator.create(customHtmlPath, patchedHtml, 'utf8');
 		}
+
 		this.gameWindow.setAttribute('src','node-webkit.html');
 	}
 	
