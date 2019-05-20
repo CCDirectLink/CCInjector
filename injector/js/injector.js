@@ -54,15 +54,16 @@ export default class Injector {
 		
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
 
-		// loading order
-		this.htmlPatcher.markLastScriptAsModule();
+		let hookOnloadScript = this.htmlPatcher.createScriptTag();
+		hookOnloadScript.src = this.path.join('onload-hijacker.js', 'injector-scripts');
+		this.htmlPatcher.insertBeforePivot();
 
-		// this will
-		let preInit = this.htmlPatcher.createScriptTag();
-		preInit.type = 'module';
+		// this will inject the mod manager
+		let modLoaderScript = this.htmlPatcher.createScriptTag();
+		modLoaderScript.type = 'module';
 		
-		preInit.src = this.path.join('/mod/manager.js', 'injector-scripts-browser');
-		preInit.id = 'mod-manager';
+		modLoaderScript.src = this.path.join('/mod/manager.js', 'injector-scripts-browser');
+		modLoaderScript.id = 'mod-manager';
 
 		this.htmlPatcher.insertAfterPivot();
 

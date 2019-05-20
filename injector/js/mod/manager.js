@@ -9,7 +9,9 @@ class ModManager {
 		this.path = new Path(this.env);
 		this.resLoader = new ResourceLoader(this.path, this.env);
 		this.fs = new FileSystem(this.env);
-
+		this.init().then(() => {
+			window.onloadCallbacks.forEach((cb) => cb());
+		});
 	}
 	async init() {
 		this.path.add('plugins', 'assets/plugins');
@@ -37,15 +39,4 @@ class ModManager {
 
 const modLoader = new ModManager();
 
-Object.defineProperty(window, 'onload', {
-	set(value) {
-		modLoader.init().then(() => {
-			value();
-		});
-		this.value = value;
-	},
-	get() {
-		return this.value;
-	}
-});
 
