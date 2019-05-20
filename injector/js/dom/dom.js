@@ -90,6 +90,9 @@ export default class DOM {
 		return null;
 	}
 
+	findAllScripts() {
+		return Array.from(this.document.getElementsByTagName('script'));
+	}
 	toString() {
 		if (!this.document) {
 			return '';
