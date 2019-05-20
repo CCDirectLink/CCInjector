@@ -1,19 +1,26 @@
 import HtmlPatcher from './html-patcher/html-patcher.js';
 import ResourceLoader from './resource-manager/resource-loader.js';
 import ResourceCreator from './resource-manager/resource-creator.js';
-import Path from './path.js';
+import Path from './path/path.js';
+import DOM from './dom/dom.js';
+import Env from './environment/environment.js';
+const fs = require('fs');
 
 export default class Injector {
 
 	constructor(document) {
-		this.debug = true;
+		let env = new Env();
+		this.debug = env.isDev();
+
 		this.htmlPatcher = new HtmlPatcher();
-		this.path = new Path();
+
+		this.path = new Path(env);
 		
-		this.resLoader = new ResourceLoader(this.path);
-		this.resCreator = new ResourceCreator(this.path);
+		this.resLoader = new ResourceLoader(this.path, env);
+		this.resCreator = new ResourceCreator(this.path, env);
 
 		this.gameWindow = document.getElementById('game-window');
+
 		this.init();
 	}
 	
@@ -22,35 +29,32 @@ export default class Injector {
 	}
 	
 	async inject() {
-		let customHtml = 'injector/node-webkit.html';
+		let customHtmlPath = 'injector/node-webkit.html';
 
-		if(this.debug || !this.resLoader.exist(customHtml)) {
+		if(this.debug || !fs.existsSync(customHtmlPath)) {
 			await this.patchWithDependencies();
-			let patchedHtml = this.htmlPatcher.toString();
-			this.resCreator.create(customHtml, patchedHtml);
+			let patchedHtml = this.htmlPatcher.export();
+			await this.resCreator.create(customHtmlPath, patchedHtml, 'utf8');
 		}
-		this.gameWindow.src = 'node-webkit.html';
+		this.gameWindow.setAttribute('src','node-webkit.html');
 	}
 	
 	async patchWithDependencies() {
 		let baseHtml = 'assets/node-webkit.html';
 		
-		let doc = await this.resLoader.load(baseHtml , {html : true});
-		this.htmlPatcher.addHtmlDocument(doc);
+		const doc = await this.resLoader.load(baseHtml , {html : true});
+		const dom = new DOM(doc);
+		this.htmlPatcher.addDOM(dom);
 		
 		const basePath = this.path.join('/assets/');
 		this.htmlPatcher.setBaseUrl(basePath);
 		
-		this.htmlPatcher.setPivot('script', 'src', 'js/game.compiled.js');
+		this.htmlPatcher.setPivotScript('js/game.compiled.js');
 		
-		let preLoad = this.htmlPatcher.createElement('script');
-		preLoad.src = '';
-		preLoad.id = 'preload';
-		this.htmlPatcher.insertBefore(preLoad);
-		
-		let preInit = this.htmlPatcher.createElement('script');
+		let preInit = this.htmlPatcher.createScriptTag();
 		preInit.src = '';
 		preInit.id = 'pre-init';
-		this.htmlPatcher.insertAfter(preInit);
+
+		this.htmlPatcher.insertAfterPivot();
 	}
 }

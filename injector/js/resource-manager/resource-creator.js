@@ -1,12 +1,13 @@
-const fs = require('fs');
-
+import FileSystem from '../filesystem-manager/fs.js';
 
 export default class ResourceCreator {
-	constructor(path) {
+	constructor(path, env) {
+		this.fs = new FileSystem(env);
 		this.path = path;
 	}
-	create(path, content) {
+	async create(path, content, opts) {
 		const fullPath = this.path.join(path);
-		fs.writeFileSync(fullPath, content); 
+		// should be check recursively
+		return this.fs.writeFile(fullPath, content, opts); 
 	}
 }
