@@ -16,14 +16,25 @@ export default class Path {
 
 		this.init();
 	}
-	
+	setBase(opts) {
+		if (opts.browser) {
+			this.set('base-browser', opts.browser);
+		}
+		if (opts.absolute) {
+			this.set('base', opts.absolute);
+		}
+	}
 	init() {
 		if (this.env.isBrowser()) {
-			this.set('base-browser', window.location.origin);
+			this.setBase({
+				browser: window.location.origin
+			});
 		}
 
 		if (this.env.isNode()) {
-			this.set('base', this.pathNode.join(process.execPath, '..'));
+			this.setBase({
+				absolute: this.pathNode.join(process.execPath, '..')
+			});
 		}
 	}
 	
