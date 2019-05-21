@@ -4,6 +4,7 @@ import Environment from '../environment/environment.js';
 import FileSystem from '../filesystem-manager/fs.js';
 import PluginLoader from './loader/plugin.js';
 import ModLoader from './loader/mod.js';
+import Logger from '../logger/log.js';
 class ModManager {
 	constructor() {
 		this.injectDependencies();
@@ -15,6 +16,7 @@ class ModManager {
 		this.fs = new FileSystem(this.env);
 		this.pluginLoader = new PluginLoader(this.path, this.env, this.fs, this.resLoader);
 		this.modLoader = new ModLoader(this.path, this.env, this.fs, this.resLoader);
+		this.logger = new Logger(this.fs);
 	}
 
 	async init() {
@@ -41,6 +43,7 @@ class ModManager {
 			plugin.run({
 				path: pluginPathInstance,
 				require: injectRequire(pluginPathInstance),
+				logger: this.logger,
 				mods
 			});
 		});
