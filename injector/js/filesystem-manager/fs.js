@@ -57,7 +57,23 @@ export default class FileSystem {
 			});
 		}
 	}
-	
+	appendFile(path, content, opts = {}) {
+		if (this.env.isNode()) {
+			return new Promise((resolve, reject) => {
+				let cb = (error, result) => {
+					if (error) {
+						reject(error);
+					}
+					resolve(result);
+				};
+				if (!opts) {
+					this.fs.appendFile(path, content, cb);
+				} else {
+					this.fs.appendFile(path, content, opts, cb);
+				}
+			});
+		}		
+	}
 	readdir(path, opts) {
 		if (this.env.isNode()) {
 			return new Promise((resolve, reject) => {
