@@ -23,9 +23,26 @@ class ModManager {
 	}
 	async load() {
 		let plugins = await this.pluginLoader.load();
+		plugins.sort((plugin1, plugin2) => {
+			return plugin1.getPriority() - plugin2.getPriority();
+		});
 		let mods = await this.modLoader.load();
+		const injectRequire = function(path) {
+			const modulesPath = path.joinWithPath({
+				pathKey: 'base',
+				relativePath: ['node_modules/']
+			});
+			return function(file) {
+				return require(path.join(modulesPath, file));
+			}
+		}
 		plugins.forEach((plugin) => {
-			plugin.run(mods);
+			let pluginPathInstance = plugin.getPath();
+			plugin.run({
+				path: pluginPathInstance,
+				require: injectRequire(pluginPathInstance),
+				mods
+			});
 		});
 		for (const mod of mods) {
 			await mod.execute();
