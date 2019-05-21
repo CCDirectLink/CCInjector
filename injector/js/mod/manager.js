@@ -34,18 +34,24 @@ class ModManager {
 				pathKey: 'base',
 				relativePath: ['node_modules/']
 			});
-			return function(file) {
-				return require(path.join(modulesPath, file));
+			return function(file, localRequire = true) {
+				if (localRequire) {
+					return require(path.join(modulesPath, file));
+				}
+				return require(file);
 			}
 		}
 		plugins.forEach((plugin) => {
 			let pluginPathInstance = plugin.getPath();
-			plugin.run({
-				path: pluginPathInstance,
-				require: injectRequire(pluginPathInstance),
-				logger: this.logger,
-				mods
-			});
+			try {
+				plugin.run({
+					path: pluginPathInstance,
+					require: injectRequire(pluginPathInstance),
+					mods
+				});
+			} catch (e) {
+				console.log(`${plugin} failed to load.`);
+			}
 		});
 		for (const mod of mods) {
 			await mod.execute();

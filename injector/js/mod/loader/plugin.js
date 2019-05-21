@@ -37,7 +37,8 @@ export default class PluginLoader extends BasicLoader {
 				plugin.setPath(pluginPath);
 				loadedPlugins.push(plugin);
 			} catch (e) {
-				console.log(`Failed to load "${pathToPlugin}"`);
+				console.log(`Failed to load "${pathToPlugin}". Relevant error:`);
+				console.log(e);
 			}
 		}
 		return loadedPlugins;
