@@ -1,4 +1,4 @@
-import BrowserPath from './browser-path.js';
+import BrowserPath from './browser.js';
 
 export default class Path {
 
@@ -16,14 +16,25 @@ export default class Path {
 
 		this.init();
 	}
-	
+	setBase(opts) {
+		if (opts.browser) {
+			this.set('base-browser', opts.browser);
+		}
+		if (opts.absolute) {
+			this.set('base', opts.absolute);
+		}
+	}
 	init() {
 		if (this.env.isBrowser()) {
-			this.set('base-browser', window.location.origin);
+			this.setBase({
+				browser: window.location.origin
+			});
 		}
 
 		if (this.env.isNode()) {
-			this.set('base', this.pathNode.join(process.execPath, '..'));
+			this.setBase({
+				absolute: this.pathNode.join(process.execPath, '..')
+			});
 		}
 	}
 	
@@ -44,21 +55,61 @@ export default class Path {
 			this.set(key + '-browser', fullPathBrowser);
 		}
 	}
+	remove(key) {
+		if (this.paths[key]) {
+			if (this.env.isNode()) {
+				delete this.paths[key];
+			} 
+			if (this.env.isBrowser()) {
+				delete this.paths[key + '-browser'];
+			}
+		}
+	}
 	
-	join(relativePath, key = 'base') {
-		
-		const path = this.getPath(key);
-		let fullPath;
+	joinWithPath({pathKey, relativePath}) {
+		if (!pathKey) {
+			pathKey = 'base';
+		}
+		if (!relativePath) {
+			relativePath = '/';
+		}
+		const path = this.getPath(pathKey);
 
-		if (this.env.isNode() && !key.endsWith('-browser')) {
-			fullPath = this.pathNode.join(path, relativePath);
+		if(!Array.isArray(relativePath) && relativePath) {
+			relativePath = [relativePath];
+		}
+		
+		relativePath.unshift(path);
+		
+		let joinedResult;
+
+		if (!pathKey.endsWith('-browser')) {
+			joinedResult = this.join(relativePath);
+		}  else {
+			joinedResult = this._join(this.pathBrowser, relativePath);
+		}
+		
+		return joinedResult;
+	}
+	join() {
+		let joinedResult;
+
+		if (this.env.isNode()) {
+			joinedResult = this._join(this.pathNode, arguments);
 		} else if (this.env.isBrowser()) {
-			fullPath = this.pathBrowser.join(path , relativePath);
+			joinedResult = this._join(this.pathBrowser, arguments);
 		} else {
 			throw new Error('How did this even happen?');
 		}
+		
+		return joinedResult;
+	}
 
-		return fullPath;
+	_join(pathImplementation, args) {
+		if(Array.isArray(args[0])) {
+			args = args[0];
+		}
+ 		return pathImplementation.join.apply(pathImplementation, args);
 	}
 
 	getPath(key) {

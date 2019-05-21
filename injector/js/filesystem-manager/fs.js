@@ -10,8 +10,19 @@ export default class FileSystem {
 
 		}
 	}
+	exists(path) {
+		if (this.env.isNode()) {
+			return new Promise((resolve, reject) => {
+				if (this.fs.existsSync(path)) {
+					resolve(true);
+				} else {
+					resolve(false);
+				}
+			}); 
+		}
+	}
 	readFile(path, opts = '') {
-		if (this.fs) {
+		if (this.env.isNode()) {
 			return new Promise((resolve, reject) => {
 				let cb = (error, result) => {
 					if (error) {
@@ -30,7 +41,7 @@ export default class FileSystem {
 	}
 
 	writeFile(path, content, opts = {}) {
-		if (this.fs) {
+		if (this.env.isNode()) {
 			return new Promise((resolve, reject) => {
 				let cb = (error, result) => {
 					if (error) {
@@ -46,4 +57,23 @@ export default class FileSystem {
 			});
 		}
 	}
+	
+	readdir(path, opts) {
+		if (this.env.isNode()) {
+			return new Promise((resolve, reject) => {
+				let cb = (error, result) => {
+					if (error) {
+						reject(error);
+					}
+					resolve(result);
+				};
+				if (!opts) {
+					this.fs.readdir(path, cb);
+				} else {
+					this.fs.readdir(path, opts, cb);
+				}
+			});
+		}
+	}
+
 }

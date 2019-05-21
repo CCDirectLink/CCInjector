@@ -1,10 +1,10 @@
-import HtmlPatcher from './html-patcher/html-patcher.js';
-import ResourceLoader from './resource-manager/resource-loader.js';
-import ResourceCreator from './resource-manager/resource-creator.js';
+import HtmlPatcher from './html/patcher.js';
+import ResourceLoader from './resource/loader.js';
+import ResourceCreator from './resource/creator.js';
 import Path from './path/path.js';
 import DOM from './dom/dom.js';
 import Env from './environment/environment.js';
-const fs = require('fs');
+import FileSystem from './filesystem-manager/fs.js';
 
 export default class Injector {
 
@@ -13,7 +13,7 @@ export default class Injector {
 		this.debug = env.isDev();
 
 		this.htmlPatcher = new HtmlPatcher();
-
+		this.fs = new FileSystem(env);
 		this.path = new Path(env);
 		this.resLoader = new ResourceLoader(this.path, env);
 		this.resCreator = new ResourceCreator(this.path, env);
@@ -24,40 +24,63 @@ export default class Injector {
 	}
 	
 	async init() {
-		this.path.add('injector-scripts','injector/js/');
+		this.path.add('injector-scripts','injector/js');
 		await this.inject();
 	}
 	
 	async inject() {
-		let customHtmlPath = 'injector/node-webkit.html';
-
-		if(this.debug || !fs.existsSync(customHtmlPath)) {
+		let customHtmlPath = this.path.joinWithPath({
+			pathKey: 'base', 
+			relativePath: 'injector/node-webkit.html'
+		});
+		
+		let createCustomHtmlFile = this.debug || (await this.fs.exists(customHtmlPath));
+		
+		if(createCustomHtmlFile) {
 			await this.patchWithDependencies();
 			let patchedHtml = this.htmlPatcher.export();
 			await this.resCreator.create(customHtmlPath, patchedHtml, 'utf8');
 		}
+
 		this.gameWindow.setAttribute('src','node-webkit.html');
 	}
 	
 	async patchWithDependencies() {
-		let baseHtml = 'assets/node-webkit.html';
+		let baseHtml = this.path.joinWithPath({
+			pathKey: 'base', 
+			relativePath: 'assets/node-webkit.html'
+		});
 		
 		const doc = await this.resLoader.load(baseHtml , {html : true});
 		const dom = new DOM(doc);
 		this.htmlPatcher.addDOM(dom);
 		
-		const basePath = this.path.join('/assets/');
+		const basePath = this.path.joinWithPath({
+			pathKey : 'base', 
+			relativePath : '/assets/'
+		});
 		this.htmlPatcher.setBaseUrl(basePath);
 		
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
+
+		let hookOnloadScript = this.htmlPatcher.createScriptTag();
+		hookOnloadScript.src = this.path.joinWithPath({
+			pathKey: 'injector-scripts',
+			relativePath: 'onload-hijacker.js'
+		});
+		this.htmlPatcher.insertBeforePivot();
+
+		// this will inject the mod manager
+		let modLoaderScript = this.htmlPatcher.createScriptTag();
+		modLoaderScript.type = 'module';
 		
-		// this will
-		let preInit = this.htmlPatcher.createScriptTag();
-		preInit.type = 'module';
-		
-		preInit.src = this.path.join('/mod-manager/mod-manager.js', 'injector-scripts-browser');
-		preInit.id = 'pre-init';
+		modLoaderScript.src = this.path.joinWithPath({
+			pathKey: 'injector-scripts-browser',
+			relativePath: '/mod/manager.js'
+		});
+		modLoaderScript.id = 'mod-manager';
 
 		this.htmlPatcher.insertAfterPivot();
+
 	}
 }

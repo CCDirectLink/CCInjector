@@ -6,8 +6,7 @@ export default class ResourceCreator {
 		this.path = path;
 	}
 	async create(path, content, opts) {
-		const fullPath = this.path.join(path);
 		// should be check recursively
-		return this.fs.writeFile(fullPath, content, opts); 
+		return this.fs.writeFile(path, content, opts); 
 	}
 }
