@@ -7,7 +7,12 @@ export default class PluginManager extends BasicManager {
 		super(path, env, fs, resLoader, PluginLoader);
 		this.plugins = [];
 		this.sysPlugins = [];
+		this.require = null;
 		this.setType('plugins');
+	}
+	async init() {
+		await super.init();
+		this.require = require;
 	}
 	async load() {
 		let pluginsLoaded = await super.load();
@@ -22,7 +27,7 @@ export default class PluginManager extends BasicManager {
 	}
 	async run(mods) {
 		this.sysPlugins.forEach((sysPlugin) => {
-			const sysRequire = this._injectRequire(sysPlugin.getPath());
+			const sysRequire = this._injectRequire(sysPlugin);
 			sysPlugin.run({
 				plugins : this.plugins, 
 				mods,
@@ -30,14 +35,16 @@ export default class PluginManager extends BasicManager {
 			});
 		});
 		this.plugins.forEach((plugin) => {
-			const require = this._injectRequire(plugin.getPath());
+			const require = this._injectRequire(plugin);
 			plugin.run({
 				mods,
 				require
 			});
 		});
 	}
-	_injectRequire(path) {
+	_injectRequire(plugin) {
+		const require = this.require;
+		const path = plugin.getPath();
 		const modulesPath = path.joinWithPath({
 			pathKey: 'base',
 			relativePath: ['node_modules/']
