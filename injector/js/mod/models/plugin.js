@@ -3,8 +3,9 @@ import Path from "../../path/path.js";
 
 export default class PluginModel {
 	constructor(pluginModule) {
-		this.name = pluginModule.name;
-		this.description = pluginModule.description || "No description";
+		this.name = pluginModule.name || 'No name';
+		this.description = pluginModule.description || 'No description';
+		this.dependencies = pluginModule.dependencies || {};
 		this.priority = 0;
 		this.setPriority(pluginModule.priority);
 		this.run = pluginModule.run || (() => {
@@ -24,6 +25,7 @@ export default class PluginModel {
 		switch (priority) {
 			case 'SYSTEM':
 				this.priority = -1;
+				break;
 			case 'HIGH':
 				this.priority = 0;
 				break;
