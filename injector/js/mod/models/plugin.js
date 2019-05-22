@@ -23,10 +23,7 @@ export default class PluginModel {
 	setPriority(priority = 'LOW') {
 		switch (priority) {
 			case 'SYSTEM':
-				this.priority = -2;
-			case 'CRITICAL':
 				this.priority = -1;
-				break;
 			case 'HIGH':
 				this.priority = 0;
 				break;

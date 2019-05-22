@@ -11,13 +11,9 @@ export default class BasicLoader {
 
 	addGlobalPath() {}
 
-	async init() {
-
-	}
+	async init() {}
 	
-	async load() {
-
-	}
+	async load() {}
 
 	async getAll(type) {
 		const fullPath = this.path.joinWithPath({

@@ -14,30 +14,18 @@ export default class PluginLoader extends BasicLoader {
 	async load() {
 		let loadedPlugins = [];
 		for (const pluginFolder of this.plugins) {
-			const pluginPath = new Path(this.env);
-			const pluginBrowserBase = this.path.joinWithPath({
+			const pathToPluginScript = this.path.joinWithPath({
 				pathKey: 'plugins-browser',
-				relativePath: [pluginFolder]
-			});
-			const pluginAbsoluteBase = this.path.joinWithPath({
-				pathKey: 'plugins',
-				relativePath: [pluginFolder]
-			});
-			pluginPath.setBase({
-				browser: pluginBrowserBase,
-				absolute: pluginAbsoluteBase
-			});
-			const pathToPlugin = pluginPath.joinWithPath({
-				pathKey: 'base-browser',
-				relativePath: ['plugin.js']
-			});
+				relativePath: [pluginFolder, 'plugin.js']
+			})
 			try {
-				const result = await import(pathToPlugin);
-				const plugin = new PluginModel(result);
-				plugin.setPath(pluginPath);
-				loadedPlugins.push(plugin);
+				const pluginModule = await import(pathToPluginScript);
+				loadedPlugins.push({
+					folderName : pluginFolder,
+					pluginModule
+				});
 			} catch (e) {
-				console.log(`Failed to load "${pathToPlugin}". Relevant error:`);
+				console.log(`Failed to load "${pluginFolder}". Relevant error:`);
 				console.log(e);
 			}
 		}
