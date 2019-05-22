@@ -10,7 +10,7 @@ export default class Injector {
 
 	constructor(document) {
 		let env = new Env();
-		this.debug = env.isDev();
+		this.debug = false;
 
 		this.htmlPatcher = new HtmlPatcher();
 		this.fs = new FileSystem(env);
