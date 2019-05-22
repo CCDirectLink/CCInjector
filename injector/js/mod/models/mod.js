@@ -1,10 +1,4 @@
 
-
-export default class ModModel {
-	constructor(path, modPackage) {
-		this.name = modPackage.name;
-		this.description = modPackage.description;
-		this.main = modPackage.main;
-		this.path = path;
-	}
+import BasicModel from './basic.js';
+export default class ModModel extends BasicModel {
 }

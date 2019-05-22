@@ -8,11 +8,15 @@ export default class ModManager extends BasicManager {
 		super(path, env, fs, resLoader, ModLoader);
 		this.mods = [];
 		this.loaded = false;
+		this.setType('mods');
 	}
 	async load() {
 		let modsLoaded = await super.load();
-		this.mods = modsLoaded.map(({path, packageData}) => {
-			return new ModModel(path, packageData);
+		this.mods = modsLoaded.map(({folderName, packageData}) => {
+			const model = new ModModel(packageData);
+			const modPath = this._createPath(folderName);
+			model.setPath(modPath);
+			return model;
 		});
 		this.loaded = true;
 	}
