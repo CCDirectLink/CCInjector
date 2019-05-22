@@ -24,6 +24,7 @@ export default class PluginModel {
 		switch (priority) {
 			case 'SYSTEM':
 				this.priority = -1;
+				break;
 			case 'HIGH':
 				this.priority = 0;
 				break;

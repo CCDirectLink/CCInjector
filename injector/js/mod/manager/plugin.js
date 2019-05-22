@@ -40,7 +40,7 @@ export default class PluginManager extends BasicManager {
 		this.sysPlugins.forEach((sysPlugin) => {
 			const sysRequire = this._injectRequire(sysPlugin.getPath());
 			sysPlugin.run({
-				plugins, 
+				plugins : this.plugins, 
 				mods,
 				require: sysRequire
 			});
