@@ -6,6 +6,7 @@ export default class BasicModel {
 		this.description = modelModule.description || 'No description';		
 		this.version = modelModule.version || 'v0.0.0';
 		this.dependencies = modelModule.dependencies || {};
+		this.packageName = modelModule.packageName || this._toPackageName();
 		this.path = null;
 	}
 	setPath(path) {
@@ -25,5 +26,13 @@ export default class BasicModel {
 	}
 	getPath() {
 		return this.path;
+	}
+
+	getPackageName() {
+		return this.packageName;
+	}
+	
+	_toPackageName() {
+		return this.name.toLowerCase().trim().split(/\s+/).join("-");
 	}
 }
