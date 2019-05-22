@@ -16,12 +16,7 @@ export default class ModLoader extends BasicLoader {
 		// for the mod manager to handle
 		let loadedMods = [];
 		for (const modsFolder of this.mods) {
-			const path = this.path.joinWithPath({
-				pathKey : 'mods-browser',
-				relativePath : [modsFolder]
-			});
 			try {
-
 				// load package 
 				let packagePath = this.path.joinWithPath({
 					pathKey: 'mods',
@@ -29,7 +24,7 @@ export default class ModLoader extends BasicLoader {
 				});
 				let packageData = await this.resLoader.load(packagePath , {json: true});
 				loadedMods.push({
-					path,
+					folderName : modsFolder,
 					packageData
 				});
 			} catch (e) {
