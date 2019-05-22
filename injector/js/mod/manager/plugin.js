@@ -1,6 +1,5 @@
 import BasicManager from './basic.js';
 import PluginModel from '../models/plugin.js';
-import Path from '../../path/path.js';
 import PluginLoader from '../loader/plugin.js';
 
 export default class PluginManager extends BasicManager {
@@ -8,33 +7,18 @@ export default class PluginManager extends BasicManager {
 		super(path, env, fs, resLoader, PluginLoader);
 		this.plugins = [];
 		this.sysPlugins = [];
+		this.setType('plugins');
 	}
 	async load() {
 		let pluginsLoaded = await super.load();
 		this.plugins = pluginsLoaded.map(({pluginModule, folderName}) => {
 			let model = new PluginModel(pluginModule);
-			let pluginPath = this._createPluginPath(folderName);
+			let pluginPath = this._createPath(folderName);
 			model.setPath(pluginPath);
 
 			return model;
 		});
 		this._sortPlugins();
-	}
-	_createPluginPath(pluginFolder) {
-		const pluginPath = new Path(this.env);
-		const pluginBrowserBase = this.path.joinWithPath({
-			pathKey: 'plugins-browser',
-			relativePath: [pluginFolder]
-		});
-		const pluginAbsoluteBase = this.path.joinWithPath({
-			pathKey: 'plugins',
-			relativePath: [pluginFolder]
-		});
-		pluginPath.setBase({
-			browser: pluginBrowserBase,
-			absolute: pluginAbsoluteBase
-		});
-		return pluginPath;
 	}
 	async run(mods) {
 		this.sysPlugins.forEach((sysPlugin) => {
