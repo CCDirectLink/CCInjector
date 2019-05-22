@@ -27,7 +27,20 @@ export default class PluginModel extends BasicModel {
 				break;
 		}
 	}
+	
 	getPriority() {
 		return this.priority;
+	}
+	
+	hasLowerPriorityThan(plugin) {
+		return this.getPriority() > plugin.getPriority();
+	}
+	
+	hasEqualPriorityWith(plugin) {
+		return this.getPriority() === plugin.getPriority();
+	}
+	
+	hasGreaterPriorityThan(plugin) {
+		return this.getPriority() < plugin.getPriority();
 	}
 }
