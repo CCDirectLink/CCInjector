@@ -28,8 +28,10 @@ export default class ModLoader extends BasicLoader {
 					relativePath: [modsFolder, 'package.json']
 				});
 				let packageData = await this.resLoader.load(packagePath , {json: true});
-				let mod = new ModModel(path, packageData);
-				loadedMods.push(mod);
+				loadedMods.push({
+					path,
+					packageData
+				});
 			} catch (e) {
 				console.log(`Failed to load "${modsFolder}"`);
 			} 

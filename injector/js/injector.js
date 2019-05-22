@@ -76,9 +76,9 @@ export default class Injector {
 		
 		modLoaderScript.src = this.path.joinWithPath({
 			pathKey: 'injector-scripts-browser',
-			relativePath: '/mod/manager.js'
+			relativePath: '/mod/director.js'
 		});
-		modLoaderScript.id = 'mod-manager';
+		modLoaderScript.id = 'mod-director';
 
 		this.htmlPatcher.insertAfterPivot();
 
