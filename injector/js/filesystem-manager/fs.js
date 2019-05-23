@@ -21,6 +21,12 @@ export default class FileSystem {
 			}); 
 		}
 	}
+	existsSync(path) {
+		if (this.env.isNode()) {
+			return this.fs.existsSync(path);
+		} 
+		return false;
+	}
 	readFile(path, opts = '') {
 		if (this.env.isNode()) {
 			return new Promise((resolve, reject) => {
