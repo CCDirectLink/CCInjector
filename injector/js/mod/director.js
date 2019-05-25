@@ -16,11 +16,12 @@ class ModDirector {
 		this.path = new Path(this.env);
 		this.resLoader = new ResourceLoader(this.path, this.env);
 		this.fs = new FileSystem(this.env);
-		this.pluginManager = this._managerFactor(PluginManager);
-		this.modManager = this._managerFactor(ModManager);
+		this.pluginManager = this._managerFactory(PluginManager);
+		this.modManager = this._managerFactory(ModManager);
 		this.logger = new Logger(this.fs);
 	}
-	_managerFactor(ManagerClass) {
+	
+	_managerFactory(ManagerClass) {
 		return new ManagerClass(this.path, this.env, this.fs, this.resLoader);
 	}
 
