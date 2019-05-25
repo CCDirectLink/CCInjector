@@ -5,18 +5,20 @@ import ModModel from '../models/mod.js';
 
 export default class ModManager extends BasicManager {
 	constructor(path, env, fs, resLoader) {
-		super(path, env, fs, resLoader, ModLoader, Mod);
+		super(path, env, fs, resLoader, ModLoader, ModModel);
 		this.mods = [];
 		this.loaded = false;
 		this.setType('mods');
 	}
 	async load() {
 		let modsLoaded = await super.load();
-		this.mods = modsLoaded.map(({folderName, packageData}) => {
+		modsLoaded.forEach(({folderName, packageData}) => {
 			const model = super.createModel(packageData);
+			this.addModel(model);
+
 			const modPath = this._createPath(folderName);
 			model.setPath(modPath);
-			return model;
+			
 		});
 		this.loaded = true;
 	}

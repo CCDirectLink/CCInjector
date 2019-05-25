@@ -5,7 +5,6 @@ import PluginLoader from '../loader/plugin.js';
 export default class PluginManager extends BasicManager {
 	constructor(path, env, fs, resLoader) {
 		super(path, env, fs, resLoader, PluginLoader, PluginModel);
-		this.plugins = [];
 		this.sysPlugins = [];
 		this.require = null;
 		this.setType('plugins');
@@ -16,12 +15,11 @@ export default class PluginManager extends BasicManager {
 	}
 	async load() {
 		let pluginsLoaded = await super.load();
-		this.plugins = pluginsLoaded.map(({pluginModule, folderName}) => {
+		pluginsLoaded.forEach(({pluginModule, folderName}) => {
 			let model = super.createModel(pluginModule);
+			this.addModel(model);
 			let pluginPath = this._createPath(folderName);
 			model.setPath(pluginPath);
-
-			return model;
 		});
 		this._sortPlugins();
 	}
@@ -30,13 +28,13 @@ export default class PluginManager extends BasicManager {
 			const sysRequire = this._injectRequire(sysPlugin);
 			sysPlugin.run({
 				managers: {
-					plugin: this,
-					mod: modelManager
+					plugins: this,
+					mods: modelManager
 				},
 				require: sysRequire
 			});
 		});
-		this.plugins.forEach((plugin) => {
+		this.getModels().forEach((plugin) => {
 			const require = this._injectRequire(plugin);
 			plugin.run({
 				managers: {
@@ -63,17 +61,11 @@ export default class PluginManager extends BasicManager {
 	};
 	_sortPlugins() {
 		// sort by priority
-		this.plugins.sort((plugin1, plugin2) => {
+		this.getModels().sort((plugin1, plugin2) => {
 			return plugin1.getPriority() - plugin2.getPriority();
 		});
 
 		// separate regular from system plugins
-		let sysPluginEndIndex = 0;
-		for (const plugin of this.plugins) {
-			if (plugin.getPriority() < 0) {
-				++sysPluginEndIndex;
-			}
-		}
-		this.sysPlugins = this.plugins.splice(0, sysPluginEndIndex);
+
 	}
 }

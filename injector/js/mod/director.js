@@ -35,8 +35,7 @@ class ModDirector {
 	}
 
 	async run() {
-		const mods = this.modManager.getMods();
-		await this.pluginManager.run(mods);
+		await this.pluginManager.run(this.modManager);
 		await this.modManager.run();
 	}
 	onloadFinish() {		
