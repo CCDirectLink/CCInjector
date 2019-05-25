@@ -4,7 +4,7 @@ import PluginLoader from '../loader/plugin.js';
 
 export default class PluginManager extends BasicManager {
 	constructor(path, env, fs, resLoader) {
-		super(path, env, fs, resLoader, PluginLoader);
+		super(path, env, fs, resLoader, PluginLoader, PluginModel);
 		this.plugins = [];
 		this.sysPlugins = [];
 		this.require = null;
@@ -17,7 +17,7 @@ export default class PluginManager extends BasicManager {
 	async load() {
 		let pluginsLoaded = await super.load();
 		this.plugins = pluginsLoaded.map(({pluginModule, folderName}) => {
-			let model = new PluginModel(pluginModule);
+			let model = super.createModel(pluginModule);
 			let pluginPath = this._createPath(folderName);
 			model.setPath(pluginPath);
 
@@ -25,19 +25,23 @@ export default class PluginManager extends BasicManager {
 		});
 		this._sortPlugins();
 	}
-	async run(mods) {
+	async run(modelManager) {
 		this.sysPlugins.forEach((sysPlugin) => {
 			const sysRequire = this._injectRequire(sysPlugin);
 			sysPlugin.run({
-				plugins : this.plugins, 
-				mods,
+				managers: {
+					plugin: this,
+					mod: modelManager
+				},
 				require: sysRequire
 			});
 		});
 		this.plugins.forEach((plugin) => {
 			const require = this._injectRequire(plugin);
 			plugin.run({
-				mods,
+				managers: {
+					mods: modelManager
+				},
 				require
 			});
 		});
