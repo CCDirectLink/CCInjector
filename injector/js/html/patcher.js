@@ -29,6 +29,9 @@ export default class HtmlPatcher {
 
 	setPivotScript(name) {
 		const script = this.dom.findScriptBySrc(name);
+		if (!script) {
+			throw new ReferenceError(`Could not find script with src "${name}"`);
+		}
 		this.dom.setPivotElement(script);
 	}
 
