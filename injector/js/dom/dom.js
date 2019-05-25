@@ -10,8 +10,8 @@ export default class DOM {
 		let base = this.findFirstTagElement('base');
 		
 		if (!base) {
-			const head = this.findFirstTagElement('head');
 			base = this.document.createElement('base');
+			const head = this.findFirstTagElement('head');
 			this.insertFirstElement(head, base);
 		}
 
@@ -36,10 +36,15 @@ export default class DOM {
 			} else {
 				parentNode.appendChild(newNode);
 			}
+		} else {
+			throw new TypeError(`Pivot Element must be set.`);
 		}
 	}
 	
 	createScript() {
+		if (!this.document) {
+			throw new ReferenceError(`Can't create a script when no document has been set.`);
+		}
 		return this.document.createElement('script');
 	}
 	
@@ -47,21 +52,19 @@ export default class DOM {
 		let node = this.pivotElement;
 		
 		if (!node) {
-			return null;
+			throw new TypeError(`No pivot element has been set.`);
 		}
 
 		const parentNode = this.getParentNode(node);
 		
-		if (node) {
-			parentNode.insertBefore(newNode, node);
-		}
+		parentNode.insertBefore(newNode, node);
 	}
 	
 	insertAfter(newNode) {
 		const node = this.pivotElement;
 		
 		if (!node) {
-			return null;
+			throw new ReferenceError(`First argument must be set to a valid element.`);
 		}
 		
 		const parentNode = this.getParentNode(node);
