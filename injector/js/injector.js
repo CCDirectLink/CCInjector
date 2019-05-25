@@ -33,25 +33,41 @@ export default class Injector {
 			pathKey: 'base', 
 			relativePath: 'injector/node-webkit.html'
 		});
+		let createCustomHtmlFile = this.debug || !this.fs.existsSync(customHtmlPath);
 		
-		let createCustomHtmlFile = this.debug || (await this.fs.exists(customHtmlPath));
 		
-		if(createCustomHtmlFile) {
-			await this.patchWithDependencies();
-			let patchedHtml = this.htmlPatcher.export();
-			await this.resCreator.create(customHtmlPath, patchedHtml, 'utf8');
-		}
 
-		this.gameWindow.setAttribute('src','node-webkit.html');
+		let path = 'node-webkit.html';
+		
+		try {
+			if(createCustomHtmlFile) {
+				console.log('Creating custom html file');
+				await this.patchWithDependencies();
+				let patchedHtml = this.htmlPatcher.export();
+				await this.resCreator.create(customHtmlPath, patchedHtml, 'utf8');
+			}
+			
+		} catch (e) {
+			console.log(e);
+			
+			console.log('Loading regular file');
+			
+			path = this.path.joinWithPath({
+				pathKey: 'base-browser',
+				relativePath: ['assets', 'node-webkit.html']
+			});
+		}
+		
+
+		this.gameWindow.setAttribute('src',path);
 	}
 	
 	async patchWithDependencies() {
-		let baseHtml = this.path.joinWithPath({
+		let originalHtmlPath =  this.path.joinWithPath({
 			pathKey: 'base', 
 			relativePath: 'assets/node-webkit.html'
 		});
-		
-		const doc = await this.resLoader.load(baseHtml , {html : true});
+		const doc = await this.resLoader.load(originalHtmlPath , {html : true});
 		const dom = new DOM(doc);
 		this.htmlPatcher.addDOM(dom);
 		
@@ -60,7 +76,7 @@ export default class Injector {
 			relativePath : '/assets/'
 		});
 		this.htmlPatcher.setBaseUrl(basePath);
-		
+
 		this.htmlPatcher.setPivotScript('js/game.compiled.js');
 
 		let hookOnloadScript = this.htmlPatcher.createScriptTag();
