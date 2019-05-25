@@ -49,9 +49,10 @@ export default class PluginManager extends BasicManager {
 			pathKey: 'base',
 			relativePath: ['node_modules/']
 		});
-		return function(file, localRequire = true) {
-			if (localRequire) {
-				return require(path.join(modulesPath, file));
+		return (file) => {
+			let modulePath = path.join(modulesPath, file + '/');
+			if (this.fs.existsSync(modulePath)) {
+				return require(modulePath);
 			}
 			return require(file);
 		}
