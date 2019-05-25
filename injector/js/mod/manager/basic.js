@@ -7,6 +7,7 @@ export default class BasicManager {
 		this.env = env;
 		this.fs = fs;
 		this.resLoader = resLoader;
+
 		this.loader = new Loader(path, env, fs, resLoader);
 		this.model = Model;
 		this.models = [];
@@ -15,6 +16,11 @@ export default class BasicManager {
 	setType(type) {
 		this.type = type;
 	}
+	
+	setModels(models) {
+		this.models = models;
+	}
+	
 	async init() {
 		return this.loader.init();
 	}
@@ -56,5 +62,9 @@ export default class BasicManager {
 			absolute: absoluteBase
 		});
 		return path;
+	}
+	
+	copy() {
+		return new this.constructor(this.path, this.env, this.fs, this.resLoader);
 	}
 }
