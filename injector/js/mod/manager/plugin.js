@@ -8,6 +8,7 @@ export default class PluginManager extends BasicManager {
 		this.sysPlugins = [];
 		this.require = null;
 		this.setType('plugins');
+		this.minPriority = -Infinity;
 	}
 	async init() {
 		await super.init();
@@ -24,26 +25,54 @@ export default class PluginManager extends BasicManager {
 		this._sortPlugins();
 	}
 	async run(modelManager) {
-		this.sysPlugins.forEach((sysPlugin) => {
-			const sysRequire = this._injectRequire(sysPlugin);
-			sysPlugin.run({
-				managers: {
-					plugins: this,
-					mods: modelManager
-				},
-				require: sysRequire
-			});
-		});
+		const cachePluginManagers = {};
 		this.getModels().forEach((plugin) => {
 			const require = this._injectRequire(plugin);
-			plugin.run({
+			const injectedDependences = {
 				managers: {
 					mods: modelManager
 				},
 				require
-			});
+			};
+			const pluginPriority = plugin.getPriority();
+			const cachedManager = cachePluginManagers[pluginPriority];
+			
+			if (cachedManager) {
+				injectedDependences.managers.plugins = cachedManager;
+			} else if(pluginPriority < 0) {
+				const generatedPluginManager = this._generateManagerByPriority(pluginPriority);
+				cachePluginManagers[pluginPriority] = generatedPluginManager;
+				injectedDependences.managers.plugins = generatedPluginManager;
+			}
+			
+			plugin.run(injectedDependences);
 		});
 	}
+
+	_generateManagerByPriority(pluginPriority) {
+		
+		const pluginManager = this.copy();
+		pluginManager.setMinPriority(pluginPriority + 1);
+		pluginManager.setModels(this.getModels());
+		
+		return pluginManager;
+	}
+	
+	removeModel(model) {
+		if (model.getPriority() >= this.minPriority) {
+			super.removeModel(model);
+		}		
+	}
+
+	getModels() {
+		const models = super.getModels();
+		return models.filter((value) => value.getPriority() >= this.minPriority);
+	}
+
+	setMinPriority(priority) {
+		this.minPriority = priority;
+	}
+
 	_injectRequire(plugin) {
 		const require = this.require;
 		const path = plugin.getPath();
@@ -61,11 +90,10 @@ export default class PluginManager extends BasicManager {
 	};
 	_sortPlugins() {
 		// sort by priority
-		this.getModels().sort((plugin1, plugin2) => {
+		let sortedModels = this.getModels().sort((plugin1, plugin2) => {
 			return plugin1.getPriority() - plugin2.getPriority();
 		});
 
-		// separate regular from system plugins
-
+		this.setModels(sortedModels);
 	}
 }
