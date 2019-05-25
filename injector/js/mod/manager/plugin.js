@@ -63,17 +63,12 @@ export default class PluginManager extends BasicManager {
 		});
 
 		// separate regular from system plugins
-		let isSystemPlugin = true;
-		do {
-			let currentPlugin = this.plugins.shift();
-			if (currentPlugin) {
-				if(currentPlugin.getPriority() < 0) {
-					this.sysPlugins.push(currentPlugin);
-				} else {
-					isSystemPlugin = false;
-					this.plugins.unshift(currentPlugin);
-				}
+		let sysPluginEndIndex = 0;
+		for (const plugin of this.plugins) {
+			if (plugin.getPriority() < 0) {
+				++sysPluginEndIndex;
 			}
-		} while (isSystemPlugin);
+		}
+		this.sysPlugins = this.plugins.splice(0, sysPluginEndIndex);
 	}
 }
