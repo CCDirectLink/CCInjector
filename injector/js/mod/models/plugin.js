@@ -12,6 +12,9 @@ export default class PluginModel extends BasicModel {
 	
 	setPriority(priority = 'LOW') {
 		switch (priority) {
+			case 'DEPENDENCY_CHECKER':
+				this.priority = -2;
+				break;
 			case 'SYSTEM':
 				this.priority = -1;
 				break;
