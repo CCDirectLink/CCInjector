@@ -29,6 +29,18 @@ export default class BasicManager {
 	addModel(model) {
 		this.models.push(model);
 	}
+
+	removeModel(model) {
+		const modelIndex = this.models.indexOf(model);
+		if (modelIndex > -1) {
+			this.models.splice(modelIndex, 1);
+		}
+	}
+
+	getModels() {
+		return this.models;
+	}
+	
 	_createPath(folderName) {
 		const path = new Path(this.env);
 		const browserBase = this.path.joinWithPath({
