@@ -12,10 +12,12 @@ export default class PluginManager extends BasicManager {
 		this.maxPriority = Infinity;
 		this.cacheModels = null;
 	}
+	
 	async init() {
 		await super.init();
 		this.require = require;
 	}
+	
 	async load() {
 		let pluginsLoaded = await super.load();
 		pluginsLoaded.forEach(({pluginModule, folderName}) => {
@@ -26,6 +28,7 @@ export default class PluginManager extends BasicManager {
 		});
 		this._sortPlugins();
 	}
+
 	async run(modelManager) {
 		const cachePluginManagers = {};
 		this.getModels().forEach((plugin) => {
@@ -109,10 +112,29 @@ export default class PluginManager extends BasicManager {
 	setMinPriority(priority) {
 		this.minPriority = priority;
 	}
+	
 	setMaxPriority(priority){
 		this.maxPriority = priority;
 	}
-	
+
+	groupModelsByPriority() {
+		if (this.models.length === 0) {
+			return [];
+		}
+		let minPriority = this.models[0].getPriority(); 
+		let maxPriority = this.maxPriority;
+		
+		const priorityList = [];
+		for(let priority = minPriority; minPriority < maxPriority; priority++) {
+			priorityList.push(this._getModelsWithEqualPriority(priority));
+		}
+		return priorityList;
+	}
+
+	_getModelsWithEqualPriority(priority) {
+		return this.getModels().filter((plugin) => plugin.getPriority() === priority);
+	}
+
 	_injectRequire(plugin) {
 		const require = this.require;
 		const path = plugin.getPath();
@@ -127,7 +149,8 @@ export default class PluginManager extends BasicManager {
 			}
 			return require(file);
 		}
-	};
+	}
+
 	_sortPlugins() {
 		
 		if (this.getModels().length === 0) {
