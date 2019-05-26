@@ -69,6 +69,11 @@ export default class PluginManager extends BasicManager {
 		super.setModels(model);
 	}
 	
+	addModel(model) {
+		super.addModel(model);
+		this._sortPlugins();
+	}
+	
 	insertModel(model, index) {
 		
 		const diffIndex = this._getDifferenceInModelLengths();
