@@ -147,7 +147,11 @@ export default class PluginManager extends BasicManager {
 		
 		const priorityList = [];
 		for(let priority = minPriority; priority <= maxPriority; priority++) {
-			priorityList.push(this._getModelsWithEqualPriority(priority));
+			const list = this._getModelsWithEqualPriority(priority);
+			priorityList.push({
+				group: list,
+				startIndex: this.getModelIndex(list[0])
+			});
 		}
 		return priorityList;
 	}
