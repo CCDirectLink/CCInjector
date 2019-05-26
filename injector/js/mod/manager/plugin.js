@@ -31,7 +31,9 @@ export default class PluginManager extends BasicManager {
 
 	async run(modelManager) {
 		const cachePluginManagers = {};
-		this.getModels().forEach((plugin) => {
+		// this supports models being modified.
+
+		for (const plugin of this._getModelsIterator()) {
 			const require = this._injectRequire(plugin);
 			const injectedDependences = {
 				managers: {
@@ -46,12 +48,31 @@ export default class PluginManager extends BasicManager {
 				injectedDependences.managers.plugins = cachedManager;
 			} else if(pluginPriority < 0) {
 				const generatedPluginManager = this._generateManagerByPriority(pluginPriority);
+
 				cachePluginManagers[pluginPriority] = generatedPluginManager;
 				injectedDependences.managers.plugins = generatedPluginManager;
 			}
 			
 			plugin.run(injectedDependences);
-		});
+		}
+	}
+
+	_getModelsIterator() {
+		let index = 0;
+		const next = () => {
+			
+			if (index < this.models.length) {
+				const currentModel = this.models[index];
+				++index;
+				return {value: currentModel, done : false};
+			}
+			return {done: true};
+		};
+		return {
+			[Symbol.iterator]: () => {
+				return {next};
+			}
+		};
 	}
 
 	_generateManagerByPriority(pluginPriority) {
