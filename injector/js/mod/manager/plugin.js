@@ -89,7 +89,7 @@ export default class PluginManager extends BasicManager {
 		return pluginManager;
 	}
 	setModels(models) {
-		super.setModels(model);
+		super.setModels(models);
 		this._sortPlugins();
 	}
 	
@@ -143,10 +143,11 @@ export default class PluginManager extends BasicManager {
 			return [];
 		}
 		let minPriority = this.models[0].getPriority(); 
-		let maxPriority = this.maxPriority;
+
+		let maxPriority = this.models[this.models.length - 1].getPriority();
 		
 		const priorityList = [];
-		for(let priority = minPriority; minPriority < maxPriority; priority++) {
+		for(let priority = minPriority; priority <= maxPriority; priority++) {
 			priorityList.push(this._getModelsWithEqualPriority(priority));
 		}
 		return priorityList;
@@ -186,16 +187,16 @@ export default class PluginManager extends BasicManager {
 		this.maxPriority = sortedModels[sortedModels.length - 1].getPriority();
 		// this is not a generated PluginManager
 		if (this.minPriority === -Infinity) {
-			this.setModels(sortedModels);
+			super.setModels(sortedModels);
 		} else {
 			this.minPriority = sortedModels[0].getPriority();
 			// This is and it has a cacheModels property
 			this.cacheModels = sortedModels;
 			
 			const diffIndex = this._getDifferenceInModelLengths();
-
+			debugger;
 			// update parent models to prevent conflicts
-			this.models.apply(this.models, [diffIndex, sortedModels.length].concat(sortedModels));
+			this.models.splice.apply(this.models, [diffIndex, sortedModels.length].concat(sortedModels));
 		}
 	}
 
