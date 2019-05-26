@@ -9,6 +9,7 @@ export default class PluginManager extends BasicManager {
 		this.require = null;
 		this.setType('plugins');
 		this.minPriority = -Infinity;
+		this.maxPriority = Infinity;
 	}
 	async init() {
 		await super.init();
@@ -53,7 +54,12 @@ export default class PluginManager extends BasicManager {
 		
 		const pluginManager = this.copy();
 		pluginManager.setMinPriority(pluginPriority + 1);
-		pluginManager.setModels(this.getModels());
+		const models = this.models; 
+		const maxPriority = models[models.length - 1] || 0;
+		
+		pluginManager.setMaxPriority(maxPriority);
+
+		pluginManager.setModels(models);
 		
 		return pluginManager;
 	}
@@ -72,7 +78,10 @@ export default class PluginManager extends BasicManager {
 	setMinPriority(priority) {
 		this.minPriority = priority;
 	}
-
+	setMaxPriority(priority){
+		this.maxPriority = priority;
+	}
+	
 	_injectRequire(plugin) {
 		const require = this.require;
 		const path = plugin.getPath();
