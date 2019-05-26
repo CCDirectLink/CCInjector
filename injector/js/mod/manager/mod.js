@@ -29,7 +29,7 @@ export default class ModManager extends BasicManager {
 		return this.mods;
 	}
 	async run() {
-		for (const mod of this.mods) {
+		for (const mod of this.getModels()) {
 			try {
 				await this._loadMod(mod);
 			} catch (e) {
