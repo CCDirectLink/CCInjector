@@ -2,7 +2,7 @@ import BasicModel from './basic.js';
 
 export default class PluginModel extends BasicModel {
 	constructor(pluginModule) {
-		super(pluginModule);
+		super(pluginModule, 'plugin');
 		this.priority = 0;
 		this.setPriority(pluginModule.priority);
 		this.run = pluginModule.run || (() => {
@@ -12,6 +12,9 @@ export default class PluginModel extends BasicModel {
 	
 	setPriority(priority = 'LOW') {
 		switch (priority) {
+			case 'DEPENDENCY_CHECKER':
+				this.priority = -2;
+				break;
 			case 'SYSTEM':
 				this.priority = -1;
 				break;
