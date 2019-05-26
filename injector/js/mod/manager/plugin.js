@@ -73,7 +73,7 @@ export default class PluginManager extends BasicManager {
 		super.addModel(model);
 		this._sortPlugins();
 	}
-	
+
 	insertModel(model, index) {
 		
 		const diffIndex = this._getDifferenceInModelLengths();
@@ -129,15 +129,22 @@ export default class PluginManager extends BasicManager {
 		}
 	};
 	_sortPlugins() {
-// sort by priority
+		
+		if (this.getModels().length === 0) {
+			return;
+		}
+
+		// sort by priority
 		let sortedModels = this.getModels().sort((plugin1, plugin2) => {
 			return plugin1.getPriority() - plugin2.getPriority();
 		});
-		
+
+		this.maxPriority = sortedModels[sortedModels.length - 1].getPriority();
 		// this is not a generated PluginManager
 		if (this.minPriority === -Infinity) {
 			this.setModels(sortedModels);
 		} else {
+			this.minPriority = sortedModels[0].getPriority();
 			// This is and it has a cacheModels property
 			this.cacheModels = sortedModels;
 			
