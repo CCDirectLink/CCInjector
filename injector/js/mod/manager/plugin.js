@@ -26,10 +26,9 @@ export default class PluginManager extends BasicManager {
 			let pluginPath = this._createPath(folderName);
 			model.setPath(pluginPath);
 		});
-		this._sortPlugins();
 	}
 
-	async run(modelManager) {
+	async run(modModelManager) {
 		const cachePluginManagers = {};
 		// this supports models being modified.
 
@@ -37,7 +36,7 @@ export default class PluginManager extends BasicManager {
 			const require = this._injectRequire(plugin);
 			const injectedDependences = {
 				managers: {
-					mods: modelManager
+					mods: modModelManager
 				},
 				require
 			};
@@ -194,7 +193,6 @@ export default class PluginManager extends BasicManager {
 			this.cacheModels = sortedModels;
 			
 			const diffIndex = this._getDifferenceInModelLengths();
-			debugger;
 			// update parent models to prevent conflicts
 			this.models.splice.apply(this.models, [diffIndex, sortedModels.length].concat(sortedModels));
 		}
