@@ -65,8 +65,8 @@ export default class PluginManager extends BasicManager {
 		return pluginManager;
 	}
 	setModels(models) {
-		this.cacheModels = null;
 		super.setModels(model);
+		this._sortPlugins();
 	}
 	
 	addModel(model) {
