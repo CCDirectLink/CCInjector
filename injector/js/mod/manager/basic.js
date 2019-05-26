@@ -36,11 +36,45 @@ export default class BasicManager {
 		this.models.push(model);
 	}
 
+	getModelIndex(model) {
+		return this.getModels().indexOf(model);
+	}
+	
+	insertModel(model, index) {
+		this.models.splice(index, 0, model);
+	}
+	
+	replaceModel(model, index) {
+		this.models.splice(index, 1, model);
+	}
+	
 	removeModel(model) {
 		const modelIndex = this.models.indexOf(model);
+
 		if (modelIndex > -1) {
 			this.models.splice(modelIndex, 1);
 		}
+	}
+
+	insertModels(models, index) {
+		if (!Array.isArray(models)) {
+			models = [models];
+		}
+		models.forEach((model, currentIndex) => this.insertModel(model, currentIndex + index));
+	}
+	
+	replaceModels(models, index) {
+		if (!Array.isArray(models)) {
+			models = [models];
+		}
+		models.forEach((model, currentIndex) => this.replaceModel(model, currentIndex + index));
+	}
+	
+	removeModels(models) {
+		if (!Array.isArray(models)) {
+			models = [models];
+		}
+		models.forEach((model) => this.removeModel(model));
 	}
 
 	getModels() {
