@@ -10,6 +10,7 @@ export default class PluginManager extends BasicManager {
 		this.setType('plugins');
 		this.minPriority = -Infinity;
 		this.maxPriority = Infinity;
+		this.cacheModels = null;
 	}
 	async init() {
 		await super.init();
@@ -63,16 +64,41 @@ export default class PluginManager extends BasicManager {
 		
 		return pluginManager;
 	}
+	setModels(models) {
+		this.cacheModels = null;
+		super.setModels(model);
+	}
 	
+	insertModel(model, index) {
+		
+		const diffIndex = this._getDifferenceInModelLengths();
+		super.insertModel(model, diffIndex + index);
+		this.cacheModels = null;
+	}
+	
+	replaceModel(model, index) {
+		const diffIndex = this._getDifferenceInModelLengths();
+		super.replaceModel(model, diffIndex + index);
+		this.cacheModels = null;
+	}
+
 	removeModel(model) {
-		if (model.getPriority() >= this.minPriority) {
-			super.removeModel(model);
-		}		
+		super.removeModel(model);
+		this.cacheModels = null;
 	}
 
 	getModels() {
+
+		if (this.minPriority === -Infinity) {
+			return this.models;
+		}
 		const models = super.getModels();
-		return models.filter((value) => value.getPriority() >= this.minPriority);
+
+		if (!this.cacheModels) {
+			this.cacheModels = models.filter((value) => value.getPriority() >= this.minPriority);
+		}
+
+		return this.cacheModels;
 	}
 
 	setMinPriority(priority) {
@@ -98,11 +124,26 @@ export default class PluginManager extends BasicManager {
 		}
 	};
 	_sortPlugins() {
-		// sort by priority
+// sort by priority
 		let sortedModels = this.getModels().sort((plugin1, plugin2) => {
 			return plugin1.getPriority() - plugin2.getPriority();
 		});
+		
+		// this is not a generated PluginManager
+		if (this.minPriority === -Infinity) {
+			this.setModels(sortedModels);
+		} else {
+			// This is and it has a cacheModels property
+			this.cacheModels = sortedModels;
+			
+			const diffIndex = this._getDifferenceInModelLengths();
 
-		this.setModels(sortedModels);
+			// update parent models to prevent conflicts
+			this.models.apply(this.models, [diffIndex, sortedModels.length].concat(sortedModels));
+		}
+	}
+
+	_getDifferenceInModelLengths() {
+		return this.models.length - this.getModels().length;
 	}
 }
