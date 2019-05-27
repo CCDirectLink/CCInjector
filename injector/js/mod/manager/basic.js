@@ -39,6 +39,7 @@ export default class BasicManager extends PriorityManager {
 		this.setCacheModels(models);
 		
 		const diffIndex = this._getDifferenceInModelLengths();
+		this.models.splice(diffIndex);
 		this.models.splice.apply(this.models, [diffIndex, models.length].concat(models));
 	
 	}
@@ -83,13 +84,6 @@ export default class BasicManager extends PriorityManager {
 		return new this.Model(modelData);
 	}
 	
-	addModel(model) {
-		if (!this._isModelAddable(model)) {
-			throw new RangeError(`Can't add "${model.getName()}" with lower priority than ${this.getMinPriority()}`);
-		}
-		this.models.push(model);
-	}
-
 	getModelIndex(model) {
 		return this.getModels().indexOf(model);
 	}
@@ -104,25 +98,49 @@ export default class BasicManager extends PriorityManager {
 		return -1;
 	}
 	
+	addModel(model) {
+		if (!this._isModelAddable(model)) {
+			throw new RangeError(`Can't add "${model.getName()}" with lower priority than ${this.getMinPriority()}`);
+		}
+		if (this.cacheModels) {
+			this.cacheModels.push(model);	
+		}
+		this.models.push(model);
+	}
+
 	insertModel(model, index) {
 		if (!this._isModelAddable(model)) {
 			throw new RangeError(`Can't insert "${model.getName()}" with lower priority than ${this.getMinPriority()}`);
 		}
-		this.models.splice(index, 0, model);
+		
+		const diffIndex = this._getDifferenceInModelLengths();
+		if (this.cacheModels) {
+			this.cacheModels.splice(index - diffIndex, 0, model);	
+		}
+
+		this.models.splice(index + 1, 0, model);
 	}
 	
 	replaceModel(model, index) {
 		if (!this._isModelAddable(model)) {
 			throw new RangeError(`Can't override ${this.models[index].getName()} with "${model.getName()}" since it has a lower priority than ${this.getMinPriority()}`);
 		}
-		this.models.splice(index, 1, model);
+		const diffIndex = this._getDifferenceInModelLengths();
+		if (this.cacheModels) {
+			this.cacheModels.splice(index - diffIndex, 1, model);	
+		}
+		this.models.splice(index + diffIndex, 1, model);
 	}
 	
 	removeModel(model) {
 		const modelIndex = this.models.indexOf(model);
 
-		if (modelIndex > -1) {
-			this.models.splice(modelIndex, 1);
+		const diffIndex = this._getDifferenceInModelLengths();
+		if (modelIndex > -1) { 
+			if (this.cacheModels) {
+				this.cacheModels.splice(modelIndex - diffIndex, 1);	
+			}
+			this.models.splice(modelIndex + diffIndex, 1);
 		}
 	}
 
@@ -147,19 +165,18 @@ export default class BasicManager extends PriorityManager {
 		models.forEach((model) => this.removeModel(model));
 	}
 
+
 	getModels() {
-		if (this.getMinPriority() === -Infinity && 
-		    this.getMaxPriority() === Infinity) {
+		if (!this.cacheModels) {
 			return this.models;
 		}
 		return this.cacheModels;
 	}
 
 	sortModelsByPriority() {
-		if (this.getModels().length === 0) {
+		if (this.models.length === 0) {
 			return;
 		}
-
 		// sort by priority
 		let sortedModels = this.getModels().sort((model1, model2) => {
 			return model1.getPriority() - model2.getPriority();
@@ -174,6 +191,7 @@ export default class BasicManager extends PriorityManager {
 		if (this.models.length === 0) {
 			return [];
 		}
+		
 		let minPriority = this.models[0].getPriority(); 
 
 		let maxPriority = this.models[this.models.length - 1].getPriority();
@@ -227,10 +245,10 @@ export default class BasicManager extends PriorityManager {
 	_getDifferenceInModelLengths() {
 		return this.models.length - this.getModels().length;
 	}
+	
 	_getModelsIterator() {
 		let index = 0;
 		const next = () => {
-			
 			if (index < this.models.length) {
 				const currentModel = this.models[index];
 				++index;
