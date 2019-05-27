@@ -11,39 +11,26 @@ export default class PluginModel extends BasicModel {
 	}
 	
 	setPriority(priority = 'LOW') {
+		let priorityNumber;
 		switch (priority) {
 			case 'DEPENDENCY_CHECKER':
-				this.priority = -2;
+				priorityNumber = -2;
 				break;
 			case 'SYSTEM':
-				this.priority = -1;
+				priorityNumber = -1;
 				break;
 			case 'HIGH':
-				this.priority = 0;
+				priorityNumber = 0;
 				break;
 			case 'MEDIUM':
-				this.priority = 1;
+				priorityNumber = 1;
 				break;
 			case 'LOW':
 			default:
-				this.priority = 2;
+				priorityNumber = 2;
 				break;
 		}
+		super.setPriority(priorityNumber);
 	}
-	
-	getPriority() {
-		return this.priority;
-	}
-	
-	hasLowerPriorityThan(plugin) {
-		return this.getPriority() > plugin.getPriority();
-	}
-	
-	hasEqualPriorityWith(plugin) {
-		return this.getPriority() === plugin.getPriority();
-	}
-	
-	hasGreaterPriorityThan(plugin) {
-		return this.getPriority() < plugin.getPriority();
-	}
+
 }
