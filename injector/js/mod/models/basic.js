@@ -1,7 +1,9 @@
+import PriorityModel from './priority.js';
 
-
-export default class BasicModel {
+export default class BasicModel extends PriorityModel {
 	constructor(modelModule, type = "basic") {
+		super();
+		
 		this.name = modelModule.name || 'No name';
 		this.description = modelModule.description || 'No description';		
 		this.version = modelModule.version || 'v0.0.0';
@@ -43,26 +45,6 @@ export default class BasicModel {
 		return this.packageName;
 	}
 	
-	setPriority(priorityNumber) {
-		this.priority = priorityNumber;
-	}
-	
-	getPriority() {
-		return this.priority;
-	}
-	
-	hasLowerPriorityThan(model) {
-		return this.getPriority() < model.getPriority();
-	}
-	
-	hasGreaterPriorityThan(model) {
-		return this.getPriority() > model.getPriority();
-	}
-
-	hasEqualPriorityWith(model) {
-		return this.getPriority() === model.getPriority();
-	}
-
 	_toPackageName() {
 		return this.name.toLowerCase().trim().split(/\s+/).join("-");
 	}
