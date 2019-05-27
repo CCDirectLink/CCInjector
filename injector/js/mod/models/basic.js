@@ -10,24 +10,31 @@ export default class BasicModel {
 		this.path = null;
 		this.type = type;
 	}
+	
 	getType() {
 		return this.type;
 	}
+	
 	setPath(path) {
 		this.path = path;
 	}
+	
 	getVersion() {
 		return this.version;
 	}
+	
 	getDescription() {
 		return this.description;
 	}
+	
 	getName() {
 		return this.name;
 	}
+	
 	getDependencies() {
 		return this.dependencies;
 	}
+	
 	getPath() {
 		return this.path;
 	}
@@ -36,6 +43,26 @@ export default class BasicModel {
 		return this.packageName;
 	}
 	
+	setPriority(priorityNumber) {
+		this.priority = priorityNumber;
+	}
+	
+	getPriority() {
+		return this.priority;
+	}
+	
+	hasLowerPriorityThan(model) {
+		return this.getPriority() < model.getPriority();
+	}
+	
+	hasGreaterPriorityThan(model) {
+		return this.getPriority() > model.getPriority();
+	}
+
+	hasEqualPriorityWith(model) {
+		return this.getPriority() === model.getPriority();
+	}
+
 	_toPackageName() {
 		return this.name.toLowerCase().trim().split(/\s+/).join("-");
 	}
