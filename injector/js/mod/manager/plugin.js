@@ -50,7 +50,7 @@ export default class PluginManager extends BasicManager {
 				injectedDependences.managers.plugins = generatedPluginManager;
 			}
 			
-			plugin.run(injectedDependences);
+			await plugin.run(injectedDependences);
 		}
 	}
 
