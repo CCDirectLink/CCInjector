@@ -4,16 +4,15 @@ import ModLoader from '../loader/mod.js';
 import ModModel from '../models/mod.js';
 
 export default class ModManager extends BasicManager {
-	constructor(path, env, fs, resLoader) {
-		super(path, env, fs, resLoader, ModLoader, ModModel);
-		this.mods = [];
+	constructor(path, env, fs, resLoader, models = []) {
+		super(path, env, fs, resLoader, models, ModLoader, ModModel);
 		this.loaded = false;
 		this.setType('mods');
 	}
 	async load() {
 		let modsLoaded = await super.load();
 		modsLoaded.forEach(({folderName, packageData}) => {
-			const model = super.createModel(packageData);
+			const model = this.createModel(packageData);
 			this.addModel(model);
 
 			const modPath = this._createPath(folderName);
@@ -22,12 +21,14 @@ export default class ModManager extends BasicManager {
 		});
 		this.loaded = true;
 	}
+	
 	getMods() {
 		if (!this.loaded) {
 			return [];
 		}
 		return this.mods;
 	}
+	
 	async run() {
 		for (const mod of this.getModels()) {
 			try {
