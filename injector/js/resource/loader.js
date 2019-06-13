@@ -7,7 +7,7 @@ export default class ResourceLoader {
 	}
 
 	async load(path, opts = {}) {
-		let resource = await this.fs.readFile(path, 'utf8');;
+		let resource = this.fs.readFileSync(path, 'utf8');
 		
 		return this.convert(resource, opts);
 	}
