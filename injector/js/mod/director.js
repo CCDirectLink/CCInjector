@@ -15,8 +15,8 @@ class ModDirector {
 		this.path = new Path(this.env);
 		this.resLoader = new ResourceLoader(this.path, this.env);
 		this.fs = require('fs');
-		this.pluginManager = this._managerFactor(PluginManager);
-		this.modManager = this._managerFactor(ModManager);
+		this.pluginManager = this._managerFactory(PluginManager);
+		this.modManager = this._managerFactory(ModManager);
 		this.logger = new Logger(this.fs);
 	}
 	

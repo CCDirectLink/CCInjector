@@ -6,6 +6,6 @@ export default class ResourceCreator {
 	}
 	async create(path, content, opts) {
 		// should be check recursively
-		return this.fs.writeFile(path, content, opts); 
+		return this.fs.writeFileSync(path, content, opts); 
 	}
 }

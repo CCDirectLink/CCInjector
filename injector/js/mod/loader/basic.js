@@ -20,11 +20,12 @@ export default class BasicLoader {
 			pathKey: type,
 			relativePath: '/'
 		});
-
 		let response = []; 
 		try {
-			response = await this.fs.readdir(fullPath);
-		} catch (e) {}
+			response = await this.fs.readdirSync(fullPath);
+		} catch (e) {
+			console.log(e);
+		}
 
 		return response;
 	}
