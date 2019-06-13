@@ -1,8 +1,7 @@
-import FileSystem from '../filesystem-manager/fs.js';
 
 export default class ResourceCreator {
 	constructor(path, env) {
-		this.fs = new FileSystem(env);
+		this.fs = require('fs');
 		this.path = path;
 	}
 	async create(path, content, opts) {

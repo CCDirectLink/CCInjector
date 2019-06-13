@@ -1,7 +1,6 @@
 import Path from '../path/path.js';
 import ResourceLoader from '../resource/loader.js';
 import Environment from '../environment/environment.js';
-import FileSystem from '../filesystem-manager/fs.js';
 
 import Logger from '../logger/log.js';
 import PluginManager from './manager/plugin.js';
@@ -15,7 +14,7 @@ class ModDirector {
 		this.env = new Environment();
 		this.path = new Path(this.env);
 		this.resLoader = new ResourceLoader(this.path, this.env);
-		this.fs = new FileSystem(this.env);
+		this.fs = require('fs');
 		this.pluginManager = this._managerFactor(PluginManager);
 		this.modManager = this._managerFactor(ModManager);
 		this.logger = new Logger(this.fs);

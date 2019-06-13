@@ -1,10 +1,8 @@
-import FileSystem from '../filesystem-manager/fs.js';
-
 export default class ResourceLoader {
 	constructor(path, env) {
 		this.path = path;
 		this.env = env;
-		this.fs = new FileSystem(env);
+		this.fs = require('fs');
 		this.domParser = new DOMParser();
 	}
 
