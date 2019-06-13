@@ -4,7 +4,6 @@ import ResourceCreator from './resource/creator.js';
 import Path from './path/path.js';
 import DOM from './dom/dom.js';
 import Env from './environment/environment.js';
-import FileSystem from './filesystem-manager/fs.js';
 
 export default class Injector {
 
@@ -13,7 +12,7 @@ export default class Injector {
 		this.debug = false;
 
 		this.htmlPatcher = new HtmlPatcher();
-		this.fs = new FileSystem(env);
+		this.fs = require('fs');
 		this.path = new Path(env);
 		this.resLoader = new ResourceLoader(this.path, env);
 		this.resCreator = new ResourceCreator(this.path, env);
