@@ -4,30 +4,33 @@ import ModLoader from '../loader/mod.js';
 import ModModel from '../models/mod.js';
 
 export default class ModManager extends BasicManager {
-	constructor(path, env, fs, resLoader) {
-		super(path, env, fs, resLoader, ModLoader);
-		this.mods = [];
+	constructor(path, env, fs, resLoader, models = []) {
+		super(path, env, fs, resLoader, models, ModLoader, ModModel);
 		this.loaded = false;
 		this.setType('mods');
 	}
 	async load() {
 		let modsLoaded = await super.load();
-		this.mods = modsLoaded.map(({folderName, packageData}) => {
-			const model = new ModModel(packageData);
+		modsLoaded.forEach(({folderName, packageData}) => {
+			const model = this.createModel(packageData);
+			this.addModel(model);
+
 			const modPath = this._createPath(folderName);
 			model.setPath(modPath);
-			return model;
+			
 		});
 		this.loaded = true;
 	}
+	
 	getMods() {
 		if (!this.loaded) {
 			return [];
 		}
 		return this.mods;
 	}
+	
 	async run() {
-		for (const mod of this.mods) {
+		for (const mod of this.getModels()) {
 			try {
 				await this._loadMod(mod);
 			} catch (e) {

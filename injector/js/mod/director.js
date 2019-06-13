@@ -19,7 +19,8 @@ class ModDirector {
 		this.modManager = this._managerFactor(ModManager);
 		this.logger = new Logger(this.fs);
 	}
-	_managerFactor(ManagerClass) {
+	
+	_managerFactory(ManagerClass) {
 		return new ManagerClass(this.path, this.env, this.fs, this.resLoader);
 	}
 
@@ -33,8 +34,7 @@ class ModDirector {
 	}
 
 	async run() {
-		const mods = this.modManager.getMods();
-		await this.pluginManager.run(mods);
+		await this.pluginManager.run(this.modManager);
 		await this.modManager.run();
 	}
 	onloadFinish() {		
