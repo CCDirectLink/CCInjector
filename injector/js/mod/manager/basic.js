@@ -262,4 +262,23 @@ export default class BasicManager extends PriorityManager {
 			}
 		};
 	}
+
+	executeScript(src,type = 'module', name = '') {
+		return new Promise((resolve, reject) => {
+
+			const script = document.createElement('script');
+			script.type = type;
+			script.onload = () => {
+				resolve();
+			};
+			script.onerror = () => {
+				reject();
+			};
+			script.src = src;
+			if (name) {
+				script.id = name;
+			}
+			document.body.appendChild(script);	
+		});		
+	}
 }
