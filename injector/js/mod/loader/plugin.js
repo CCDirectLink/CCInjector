@@ -1,6 +1,4 @@
 import BasicLoader from './basic.js';
-import PluginModel from '../models/plugin.js';
-import Path from '../../path/path.js';
 
 export default class PluginLoader extends BasicLoader {
 
@@ -13,22 +11,47 @@ export default class PluginLoader extends BasicLoader {
 	}
 	async load() {
 		let loadedPlugins = [];
+		let hasDependencyChecker = false;
 		for (const pluginFolder of this.plugins) {
-			const pathToPluginScript = this.path.joinWithPath({
-				pathKey: 'plugins-browser',
+			let pathToPluginScript = this.path.joinWithPath({
+				pathKey: 'plugins',
 				relativePath: [pluginFolder, 'plugin.js']
-			})
-			try {
-				const pluginModule = await import(pathToPluginScript);
-				loadedPlugins.push({
-					folderName : pluginFolder,
-					pluginModule
-				});
-			} catch (e) {
-				console.log(`Failed to load "${pluginFolder}". Relevant error:`);
-				console.log(e);
+			});
+
+
+			if (this.fs.existsSync(pathToPluginScript)) {
+				try {
+					pathToPluginScript = this.path.joinWithPath({
+						pathKey: 'plugins-browser',
+						relativePath: [pluginFolder, 'plugin.js']
+					});
+					const pluginModule = await import(pathToPluginScript);
+					const data = {
+						folderName : pluginFolder,
+						pluginModule
+					};
+					
+
+					// dependencyChecker has to be first
+					if (!hasDependencyChecker && pluginModule.dependencyChecker) {
+						loadedPlugins.unshift(data);
+						hasDependencyChecker = true;
+					} else {
+						loadedPlugins.push(data);
+					}
+					
+				} catch (e) {
+					console.log(`Failed to load "${pluginFolder}". Relevant error:`);
+					console.log(e);
+				}
+			} else {
+				console.log(`${pluginFolder} does not have the proper format`);
 			}
+			
+			
 		}
+		
+
 		return loadedPlugins;
 	}
 

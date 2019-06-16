@@ -1,40 +1,30 @@
-import PriorityModel from './priority.js';
-
-export default class BasicModel extends PriorityModel {
-	constructor(modelModule, type = "basic") {
-		super();
-		
-		this.name = modelModule.name || 'No name';
-		this.description = modelModule.description || 'No description';		
-		this.version = modelModule.version || 'v0.0.0';
-		this.dependencies = modelModule.dependencies || {};
-		this.packageName = modelModule.packageName || this._toPackageName();
+export default class BasicModel {
+	constructor(modelModule, type = "basic") {	
 		this.path = null;
 		this.type = type;
+
+		this.modelModule = modelModule;
+		this.description = modelModule.description || 'No description';		
+		this.packageName = modelModule.packageName || this._toPackageName();
 	}
 	
+	getConfig() {
+		return this.modelModule || {};
+	}
+
+	getProperty(propName) {
+		return this.getConfig()[propName];
+	}
+	
+	getDependencies() {
+		return this.getProperty('dependencies');
+	}
 	getType() {
 		return this.type;
 	}
 	
 	setPath(path) {
 		this.path = path;
-	}
-	
-	getVersion() {
-		return this.version;
-	}
-	
-	getDescription() {
-		return this.description;
-	}
-	
-	getName() {
-		return this.name;
-	}
-	
-	getDependencies() {
-		return this.dependencies;
 	}
 	
 	getPath() {
@@ -46,6 +36,10 @@ export default class BasicModel extends PriorityModel {
 	}
 	
 	_toPackageName() {
-		return this.name.toLowerCase().trim().split(/\s+/).join("-");
+		const name = this.getProperty('name');
+		if (name) {
+			return name.toLowerCase().trim().split(/\s+/).join("-");
+		}
+		return '';
 	}
 }

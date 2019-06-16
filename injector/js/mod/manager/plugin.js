@@ -3,11 +3,19 @@ import PluginModel from '../models/plugin.js';
 import PluginLoader from '../loader/plugin.js';
 
 export default class PluginManager extends BasicManager {
-	constructor(path, env, fs, resLoader, models = []) {
-		super(path, env, fs, resLoader, models, PluginLoader, PluginModel);
+	constructor() {
+		super();
 		this.require = null;
 		this.setType('plugins');
 		
+	}
+
+	initLoader() {
+		super.initLoader(PluginLoader);
+	}
+
+	createModel(modelData) {
+		return super.createModel(modelData, PluginModel);
 	}
 	
 	async init() {
@@ -23,34 +31,45 @@ export default class PluginManager extends BasicManager {
 			let pluginPath = this._createPath(folderName);
 			model.setPath(pluginPath);
 		});
-		this.sortModelsByPriority();
 	}
 
 	async run(modModelManager) {
-		const cachePluginManagers = {};
-		// this supports models being modified.
-
+		
+		let startIndex = 0;
+		let modelCopies = this.models.slice(0);
+		const copy = this.copy();
+		copy.setModels(modelCopies);
+		
 		for (const plugin of this._getModelsIterator()) {
-			const require = this._injectRequire(plugin);
-			const injectedDependences = {
-				managers: {
-					mods: modModelManager
-				},
-				require
-			};
-			const pluginPriority = plugin.getPriority();
-			const cachedManager = cachePluginManagers[pluginPriority];
-			
-			if (cachedManager) {
-				injectedDependences.managers.plugins = cachedManager;
-			} else if(pluginPriority < 0) {
-				const generatedPluginManager = this.generateManagerWithMinPriority(pluginPriority + 1);
 
-				cachePluginManagers[pluginPriority] = generatedPluginManager;
-				injectedDependences.managers.plugins = generatedPluginManager;
-			}
+			// create custom require
+			const require = this._injectRequire(plugin);
 			
-			await plugin.run(injectedDependences);
+			
+			
+			// remove the currently executing model
+			modelCopies.splice(0,1);
+			
+
+			const phaseName = this.phaseManager.getCurrentPhase();
+			
+			const instance = plugin.getInstance();
+			// might include a permissions field so that I can limit how often models are spliced
+			++startIndex;
+			if (instance) {
+				if (instance[phaseName]) {
+					await instance[phaseName]({
+						managers: {
+							plugin: copy,
+							mod: modModelManager
+						},
+						require
+					});
+					// replace remaining
+					this.models.splice(startIndex);
+					this.models.push.apply(this.models, modelCopies);
+				}
+			}
 		}
 	}
 

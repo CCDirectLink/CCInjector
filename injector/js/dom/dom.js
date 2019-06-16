@@ -18,8 +18,16 @@ export default class DOM {
 		base.setAttribute('href', url);
 	}
 
+	findElementById(id) {
+		return this.document.getElementsByTagName(id);
+	}
+	
 	setPivotElement(element) {
 		this.pivotElement = element;
+	}
+	
+	removeElement(element) {
+		element.remove();
 	}
 	
 	findFirstTagElement(type) {

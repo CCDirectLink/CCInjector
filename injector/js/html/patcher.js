@@ -19,10 +19,17 @@ export default class HtmlPatcher {
 		return this.tempElement;
 	}
 	
+	setPivotElement(element) {
+		this.dom.setPivotElement(element);
+	}
+
 	insertBeforePivot() {
 		this.dom.insertBefore(this.tempElement);
 	}
-	
+	findElementById(id) {
+		return this.dom.findElementById(id);
+	}
+
 	insertAfterPivot() {
 		this.dom.insertAfter(this.tempElement);
 	}
@@ -35,6 +42,13 @@ export default class HtmlPatcher {
 		this.dom.setPivotElement(script);
 	}
 
+	removeElement(element) {
+		if (this.dom.pivotElement === element) {
+			this.dom.setPivotElement(null);
+		}
+		this.dom.removeElement(element);
+	}
+	
 	export() {
 		return this.dom.toString();
 	}
