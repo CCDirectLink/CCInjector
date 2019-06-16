@@ -27,18 +27,20 @@ class ModDirector {
 	}
 	
 	initPhases() {
-		this.phaseManager.addPhase('preload');
-		this.phaseManager.setPhaseFilter('preload', function(model) {
-			return model.hasPriority('preload');
-		});
+		const onPhaseTrigger = async (eventName) => {
+			await this.run();
+			document.dispatchEvent(new Event(eventName));
+			document.body.dispatchEvent(new Event(eventName));
+		};
+		const phases = ['preload', 'postload', 'prestart'];
 
-		this.phaseManager.addPhase('postload');
-		this.phaseManager.setPhaseFilter('postload', function(model) {
-			return model.hasPriority('postload');
-		});
-		
-		this.phaseManager.addPhase('prestart');
-		this.phaseManager.addPhase('main');
+		for (const phaseName of phases) {
+			const phase = this.phaseManager.addPhase(phaseName);
+			phase.addCallback(onPhaseTrigger);
+			phase.setFilter((model) => {
+				model.hasPriority(phaseName);
+			});
+		}
 	}
 
 	initInjections() {
@@ -65,15 +67,10 @@ class ModDirector {
 		});
 
 
-	}
-	
-	setCurrentPhase(name) {
-		this.phaseManager.setCurrentPhase(name);
-	}
-	
+	}	
 	async triggerPhase(name) {
-		this.setCurrentPhase(name);
-		await this.run();
+		this.phaseManager.setCurrentPhase(name);
+		await this.phaseManager.trigger();
 	}
 	
 	_managerFactory(ManagerClass) {
@@ -113,13 +110,15 @@ class ModDirector {
 			
 	await modDirector.init();
 	await modDirector.load();
-
-
 	await modDirector.triggerPhase('preload');
+	
 	// load game.compiled.js here
 	await loadGameFile();
+	
 	console.log('Done loading game file?');
+	
 	modDirector.initInjections();
+
 	ig._DOMReady(true);
 })()
 
