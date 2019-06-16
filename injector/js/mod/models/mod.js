@@ -1,25 +1,17 @@
+import PriorityModel from './priority.js';
 
-import BasicModel from './basic.js';
-export default class ModModel extends BasicModel {
+export default class ModModel extends PriorityModel {
 	constructor(modModule) {
 		super(modModule, 'mod');
-		this.main = modModule.main;
-	}
-	setPriority(priority = 'LOW') {
-		let priorityNumber;
-		switch (priority) {
-			case 'preload':
-				priorityNumber = -1;
-				break;
-			case 'default':
-			default:
-				priorityNumber = 0;
-				break;
-		}
-		super.setPriority(priorityNumber);
 	}
 
-	getMain() {
-		return this.main;
+	getDependencies() {
+		let modDependencies = this.getProperty('ccmodDependencies');
+		
+		if (!modDependencies) {
+			return super.getDependencies();
+		}
+		
+		return modDependencies;
 	}
 }
