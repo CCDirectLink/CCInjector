@@ -1,8 +1,8 @@
-
+import PhaseModel from '../models/phase.js';
 
 export default class PhaseManager {
 	constructor() {
-		this.phase = new Map();
+		this.phases = new Map();
 		this.currentPhase = "";
 	}
 
@@ -11,20 +11,48 @@ export default class PhaseManager {
 	}
 	
 	addPhase(name) {
-		this.phase.set(name, {});
+		let phase = this.phases.get(name);
+		if (!phase) {
+			phase = new PhaseModel(name);
+			this.phases.set(name, phase);
+		}
+		return phase;
 	}
-
+	
 	removePhase(name) {
-		this.phase.delete(name);
+		this.phases.delete(name);
 	}
 
-	setPhaseFilter(name, phaseFilter) {
-		const phaseConfig = this.getPhase(name);
-		if (!phaseConfig) {
+	addPhaseListener(name, listener) {
+		const phase = this.getPhase(name);
+		if (!phase) {
 			throw new Error(`Phase "${name}" was not found.`);
 		}
+		phase.addCallback(listener);
+	}
+	
+	removeListener(name, listener) {
+		const phase = this.getPhase(name);
+		if (!phase) {
+			throw new Error(`Phase "${name}" was not found.`);
+		}
+		phase.removeCallback(listener);	
+	}
 
-		phaseConfig.filter = phaseFilter;
+	async trigger() {
+		const phase = this.getPhase(this.currentPhase);
+		if (phase) {
+			await phase.trigger();
+		}
+	}
+	
+
+	setPhaseFilter(name, phaseFilter) {
+		const phase = this.getPhase(name);
+		if (!phase) {
+			throw new Error(`Phase "${name}" was not found.`);
+		}
+		phase.setFilter(phaseFilter);
 	}
 
 	getCurrentPhase() {
@@ -32,19 +60,15 @@ export default class PhaseManager {
 	}
 	
 	getCurrentPhaseFilter() {
-		return this.getPhaseFilter(this.currentPhase);
-	}
-
-	getPhaseFilter(name) {
-		const phaseConfig = this.getPhase(name);
-		if (!phaseConfig) {
+		const phase = this.getPhase(this.currentPhase);
+		if (!phase) {
 			throw new Error(`Phase "${name}" was not found.`);
 		}
-		return phaseConfig.filter;		
+		return phase.getFilter();
 	}
 
 	getPhase(name) {
-		return this.phase.get(name) || null;	
+		return this.phases.get(name) || null;	
 	}
 
 }
