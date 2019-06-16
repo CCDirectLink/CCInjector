@@ -94,7 +94,9 @@ export default class Injector {
 		});
 		this.htmlPatcher.setBaseUrl(basePath);
 
-		this.htmlPatcher.setPivotScript('js/game.compiled.js');
+		const gameRef = this.htmlPatcher.dom.findScriptBySrc('game.compiled.js');
+
+		this.htmlPatcher.setPivotElement(gameRef);
 
 		let hookOnloadScript = this.htmlPatcher.createScriptTag();
 		hookOnloadScript.src = this.path.joinWithPath({
@@ -114,6 +116,31 @@ export default class Injector {
 		modLoaderScript.id = 'mod-director';
 
 		this.htmlPatcher.insertAfterPivot();
+
+		// this will allow the game file to be loaded manually
+		let gameLoaderScript = this.htmlPatcher.createScriptTag();
+		gameLoaderScript.type = 'application/javascript';
+		gameLoaderScript.innerHTML = `
+		function loadGameFile() {
+			return new Promise((resolve, reject) => {
+				const gameScript = document.createElement('script');
+				gameScript.src = '${gameRef.src}';
+				gameScript.type = 'application/javascript';
+				
+				gameScript.onload = function() {
+					resolve();
+				};
+				
+				gameScript.onerror = function() {
+					reject();
+				};
+				document.body.appendChild(gameScript);
+			});
+		}`;
+
+		this.htmlPatcher.insertBeforePivot();
+
+		this.htmlPatcher.removeElement(gameRef);
 
 	}
 }
