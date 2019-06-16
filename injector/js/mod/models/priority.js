@@ -1,27 +1,11 @@
+import BasicModel from './basic.js';
 
-export default class PriorityModel {
-	constructor(priority = 0) {
-		this.priority = priority;
-	}
-
-	setPriority(priorityNumber) {
-		this.priority = priorityNumber;
-	}
+export default class PriorityModel extends BasicModel {
+	constructor(modelModule, type) {
+		super(modelModule, type);
+	}	
 	
-	getPriority() {
-		return this.priority;
+	hasPriority(priorityName) {
+		return !!this.getProperty(priorityName);
 	}
-	
-	hasLowerPriorityThan(model) {
-		return this.getPriority() < model.getPriority();
-	}
-	
-	hasGreaterPriorityThan(model) {
-		return this.getPriority() > model.getPriority();
-	}
-
-	hasEqualPriorityWith(model) {
-		return this.getPriority() === model.getPriority();
-	}
-	
 }
