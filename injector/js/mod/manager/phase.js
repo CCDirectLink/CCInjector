@@ -3,8 +3,13 @@
 export default class PhaseManager {
 	constructor() {
 		this.phase = new Map();
+		this.currentPhase = "";
 	}
 
+	setCurrentPhase(phaseName) {
+		this.currentPhase = phaseName;
+	}
+	
 	addPhase(name) {
 		this.phase.set(name, {});
 	}
@@ -20,6 +25,14 @@ export default class PhaseManager {
 		}
 
 		phaseConfig.filter = phaseFilter;
+	}
+
+	getCurrentPhase() {
+		return this.currentPhase;
+	}
+	
+	getCurrentPhaseFilter() {
+		return this.getPhaseFilter(this.currentPhase);
 	}
 
 	getPhaseFilter(name) {
