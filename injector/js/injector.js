@@ -124,7 +124,7 @@ export default class Injector {
 		function loadGameFile() {
 			return new Promise((resolve, reject) => {
 				const gameScript = document.createElement('script');
-				gameScript.src = '${gameRef.src}';
+				gameScript.src = unescape('${escape(gameRef.src)}');
 				gameScript.type = 'application/javascript';
 				
 				gameScript.onload = function() {
