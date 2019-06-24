@@ -1,5 +1,0 @@
-/node_modules
-.*.swp
-coverage/
-.nyc_output/
-.idea
