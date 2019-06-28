@@ -8,7 +8,8 @@ export default class Path {
 		this.pathBrowser = null;
 		if (this.env.isNode()) {
 			this.pathNode = require('path');
-		} 
+		}
+		
 		if (this.env.isBrowser()) {
 			this.pathBrowser = new BrowserPath();
 		}
@@ -27,7 +28,7 @@ export default class Path {
 	init() {
 		if (this.env.isBrowser()) {
 			this.setBase({
-				browser: window.location.origin
+				browser: chrome.extension.getURL('')
 			});
 		}
 
