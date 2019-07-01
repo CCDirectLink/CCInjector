@@ -26,6 +26,11 @@ class ModDirector {
 		this.logger = new Logger(this.fs);
 	}
 	
+
+	getModManager() {
+		return this.modManager;
+	}
+	
 	initPhases() {
 		const onPhaseTrigger = async (eventName) => {
 			await this.run();
@@ -95,9 +100,10 @@ class ModDirector {
 	}
 
 	async run() {
-		await this.pluginManager.run(this.modManager);
+		await this.pluginManager.run(this);
 		await this.modManager.run();
 	}
+	
 	onloadFinish() {		
 		window.executeOnloadCallbacks();
 	}
