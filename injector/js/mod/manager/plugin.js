@@ -7,7 +7,7 @@ export default class PluginManager extends BasicManager {
 		super();
 		this.require = null;
 		this.setType('plugins');
-		
+		this.cacheCopy = null;
 	}
 
 	initLoader() {
@@ -33,19 +33,32 @@ export default class PluginManager extends BasicManager {
 		});
 	}
 
-	async run(modModelManager) {
+
+	copy() {
+		const instance = super.copy();
+		
+		let modelCopies = this.models.slice(0);
+		instance.setModels(modelCopies);
+		
+		return instance;
+	}
+
+	async run(director) {
 		
 		let startIndex = 0;
-		let modelCopies = this.models.slice(0);
-		const copy = this.copy();
-		copy.setModels(modelCopies);
-		
+
+		let modelCopies = null;
+		if (this.cacheCopy === null) {
+			this.cacheCopy = this.copy();
+			modelCopies = this.cacheCopy.getModels();
+		} else {
+			// update cacheCopy
+			modelCopies = this.models.slice(0);
+			this.cacheCopy.setModels(modelCopies);
+		}
+
 		for (const plugin of this._getModelsIterator()) {
 
-			// create custom require
-			const require = this._injectRequire(plugin);
-			
-			
 			
 			// remove the currently executing model
 			modelCopies.splice(0,1);
@@ -53,18 +66,19 @@ export default class PluginManager extends BasicManager {
 
 			const phaseName = this.phaseManager.getCurrentPhase();
 			
-			const instance = plugin.getInstance();
-			// might include a permissions field so that I can limit how often models are spliced
+			const instance = plugin.createInstance({
+				managers: {
+					plugin: this.cacheCopy,
+					mod: director.getModManager()
+				},
+				resourceLoader: this.resLoader,
+				require: this._injectRequire(plugin)
+			});
+
 			++startIndex;
 			if (instance) {
 				if (instance[phaseName]) {
-					await instance[phaseName]({
-						managers: {
-							plugin: copy,
-							mod: modModelManager
-						},
-						require
-					});
+					await instance[phaseName]();
 					// replace remaining
 					this.models.splice(startIndex);
 					this.models.push.apply(this.models, modelCopies);
