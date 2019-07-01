@@ -12,9 +12,18 @@ import PhaseManager from './manager/phase.js';
 
 class ModDirector {
 	constructor() {
+		this.injectVersion();
 		this.injectDependencies();
 		this.initPhases();
 	}
+	injectVersion() {
+		Object.defineProperty(window, 'INJECTOR_VERSION', {
+			writable: false,
+			value: 'v1.0.0',
+			configurable: false
+		});
+	}
+	
 	injectDependencies() {
 		this.phaseManager = new PhaseManager();
 		this.env = new Environment();
@@ -24,6 +33,11 @@ class ModDirector {
 		this.pluginManager = this._managerFactory(PluginManager);
 		this.modManager = this._managerFactory(ModManager);
 		this.logger = new Logger(this.fs);
+	}
+	
+
+	getModManager() {
+		return this.modManager;
 	}
 	
 	initPhases() {
@@ -95,9 +109,10 @@ class ModDirector {
 	}
 
 	async run() {
-		await this.pluginManager.run(this.modManager);
+		await this.pluginManager.run(this);
 		await this.modManager.run();
 	}
+	
 	onloadFinish() {		
 		window.executeOnloadCallbacks();
 	}

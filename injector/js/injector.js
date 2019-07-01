@@ -88,10 +88,7 @@ export default class Injector {
 		const dom = new DOM(doc);
 		this.htmlPatcher.addDOM(dom);
 		
-		const basePath = this.path.joinWithPath({
-			pathKey : 'base', 
-			relativePath : '/assets/'
-		});
+		const basePath = chrome.extension.getURL('assets/');
 		this.htmlPatcher.setBaseUrl(basePath);
 
 		const gameRef = this.htmlPatcher.dom.findScriptBySrc('game.compiled.js');
@@ -100,7 +97,7 @@ export default class Injector {
 
 		let hookOnloadScript = this.htmlPatcher.createScriptTag();
 		hookOnloadScript.src = this.path.joinWithPath({
-			pathKey: 'injector-scripts',
+			pathKey: 'injector-scripts-browser',
 			relativePath: 'onload-hijacker.js'
 		});
 		this.htmlPatcher.insertBeforePivot();
@@ -124,7 +121,7 @@ export default class Injector {
 		function loadGameFile() {
 			return new Promise((resolve, reject) => {
 				const gameScript = document.createElement('script');
-				gameScript.src = unescape('${escape(gameRef.src)}');
+				gameScript.src = 'js/game.compiled.js';
 				gameScript.type = 'application/javascript';
 				
 				gameScript.onload = function() {

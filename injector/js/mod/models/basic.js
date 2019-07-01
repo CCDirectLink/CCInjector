@@ -5,7 +5,7 @@ export default class BasicModel {
 
 		this.modelModule = modelModule;
 		this.description = modelModule.description || 'No description';		
-		this.packageName = modelModule.packageName || this._toPackageName();
+		this.packageName = modelModule.packageName || modelModule.name;
 	}
 	
 	getConfig() {
@@ -33,13 +33,5 @@ export default class BasicModel {
 
 	getPackageName() {
 		return this.packageName;
-	}
-	
-	_toPackageName() {
-		const name = this.getProperty('name');
-		if (name) {
-			return name.toLowerCase().trim().split(/\s+/).join("-");
-		}
-		return '';
 	}
 }
